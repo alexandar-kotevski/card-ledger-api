@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'CardLedger.Application.Tests'">
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutput>$(MSBuildThisFileDirectory)coverage/</CoverletOutput>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+    <Include>[CardLedger.Application]CardLedger.Application.Services.ExchangeRateLookbackService*,[CardLedger.Application]CardLedger.Application.Services.CurrencyConversionService*,[CardLedger.Application]CardLedger.Application.Services.ConversionRateMetadata*</Include>
+    <Exclude>[CardLedger.Domain]*</Exclude>
+    <Threshold>100</Threshold>
+    <ThresholdType>line</ThresholdType>
+    <ThresholdStat>minimum</ThresholdStat>
+  </PropertyGroup>
+</Project>

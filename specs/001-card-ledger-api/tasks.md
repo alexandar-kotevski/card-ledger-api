@@ -28,18 +28,18 @@ other code. Include test tasks for gated modules in every feature plan.
 
 **Purpose**: Project initialization and tooling bootstrap
 
-- [ ] T001 Create `CardLedger.slnx` with all src and test projects at repository root
-- [ ] T002 Create `global.json` pinning .NET 10 SDK at repository root
-- [ ] T003 Create `Directory.Build.props` with `TreatWarningsAsErrors`, nullable enable, and coverlet collector at repository root
-- [ ] T004 [P] Create `src/CardLedger.Domain/CardLedger.Domain.csproj` targeting `net10.0` with C# 14
-- [ ] T005 [P] Create `src/CardLedger.Application/CardLedger.Application.csproj` targeting `net10.0` referencing Domain
-- [ ] T006 [P] Create `src/CardLedger.Infrastructure/CardLedger.Infrastructure.csproj` targeting `net10.0` referencing Application and Domain
-- [ ] T007 [P] Create `src/CardLedger.Api/CardLedger.Api.csproj` targeting `net10.0` referencing Infrastructure
-- [ ] T008 [P] Create `tests/CardLedger.Domain.Tests/CardLedger.Domain.Tests.csproj` with xUnit and coverlet
-- [ ] T009 [P] Create `tests/CardLedger.Application.Tests/CardLedger.Application.Tests.csproj` with xUnit, NSubstitute, and coverlet
-- [ ] T010 [P] Create `tests/CardLedger.Integration.Tests/CardLedger.Integration.Tests.csproj` with xUnit, Testcontainers.PostgreSql, and WebApplicationFactory
-- [ ] T011 Add NuGet packages to Infrastructure: EF Core 10, Npgsql.EntityFrameworkCore.PostgreSQL, Microsoft.Extensions.Http
-- [ ] T012 Create multi-stage `Dockerfile` and `docker-compose.yml` with `postgres:18` and api on port 8080 at repository root
+- [X] T001 Create `CardLedger.slnx` with all src and test projects at repository root
+- [X] T002 Create `global.json` pinning .NET 10 SDK at repository root
+- [X] T003 Create `Directory.Build.props` with `TreatWarningsAsErrors`, nullable enable, and coverlet collector at repository root
+- [X] T004 [P] Create `src/CardLedger.Domain/CardLedger.Domain.csproj` targeting `net10.0` with C# 14
+- [X] T005 [P] Create `src/CardLedger.Application/CardLedger.Application.csproj` targeting `net10.0` referencing Domain
+- [X] T006 [P] Create `src/CardLedger.Infrastructure/CardLedger.Infrastructure.csproj` targeting `net10.0` referencing Application and Domain
+- [X] T007 [P] Create `src/CardLedger.Api/CardLedger.Api.csproj` targeting `net10.0` referencing Infrastructure
+- [X] T008 [P] Create `tests/CardLedger.Domain.Tests/CardLedger.Domain.Tests.csproj` with xUnit and coverlet
+- [X] T009 [P] Create `tests/CardLedger.Application.Tests/CardLedger.Application.Tests.csproj` with xUnit, NSubstitute, and coverlet
+- [X] T010 [P] Create `tests/CardLedger.Integration.Tests/CardLedger.Integration.Tests.csproj` with xUnit, Testcontainers.PostgreSql, and WebApplicationFactory
+- [X] T011 Add NuGet packages to Infrastructure: EF Core 10, Npgsql.EntityFrameworkCore.PostgreSQL, Microsoft.Extensions.Http
+- [X] T012 Create multi-stage `Dockerfile` and `docker-compose.yml` with `postgres:18` and api on port 8080 at repository root
 
 ---
 
@@ -49,31 +49,31 @@ other code. Include test tasks for gated modules in every feature plan.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T013 [P] Create `src/CardLedger.Domain/ValueObjects/Money.cs` with decimal amount and currency code
-- [ ] T014 [P] Create `src/CardLedger.Domain/ValueObjects/CurrencyCode.cs` with ISO 4217 validation
-- [ ] T015 [P] Create `src/CardLedger.Domain/ValueObjects/Pan.cs` with 16-digit validation
-- [ ] T016 [P] Create `src/CardLedger.Domain/ValueObjects/Cvv.cs` with 3-digit validation
-- [ ] T017 [P] Create `src/CardLedger.Domain/Entities/Card.cs` per data-model.md
-- [ ] T018 [P] Create `src/CardLedger.Domain/Entities/Ledger.cs` per data-model.md
-- [ ] T019 [P] Create `src/CardLedger.Domain/Entities/Transaction.cs` per data-model.md
-- [ ] T020 [P] Create `src/CardLedger.Domain/Entities/ExchangeRate.cs` per data-model.md
-- [ ] T021 [P] Create domain exceptions in `src/CardLedger.Domain/Exceptions/` (ExchangeRateNotFoundException, InsufficientBalanceException, InvalidCardCredentialsException, CardExpiredException, CardNotFoundException)
-- [ ] T022 [P] Create `src/CardLedger.Domain/Services/CardNumberGenerator.cs` using RandomNumberGenerator for unique 16-digit PAN
-- [ ] T023 [P] Create `src/CardLedger.Domain/Services/CvvHasher.cs` with SHA-256 hash and compare
-- [ ] T024 [P] Create repository abstractions in `src/CardLedger.Application/Abstractions/` (ICardRepository, ILedgerRepository, ITransactionRepository, IExchangeRateRepository, ITreasuryRateClient, IUnitOfWork)
-- [ ] T025 Create `src/CardLedger.Infrastructure/Persistence/CardLedgerDbContext.cs` with DbSets for Card, Ledger, Transaction, ExchangeRate
-- [ ] T026 [P] Create EF entity configurations in `src/CardLedger.Infrastructure/Persistence/Configurations/` with decimal(18,4)/decimal(18,8) precision and unique indexes
-- [ ] T027 Create initial EF migration in `src/CardLedger.Infrastructure/Persistence/Migrations/`
-- [ ] T028 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/CardRepository.cs`
-- [ ] T029 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/LedgerRepository.cs`
-- [ ] T030 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/TransactionRepository.cs`
-- [ ] T031 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/ExchangeRateRepository.cs`
-- [ ] T032 Create `src/CardLedger.Infrastructure/Treasury/TreasuryRateClient.cs` calling Fiscal Data rates_of_exchange API
-- [ ] T033 Create `src/CardLedger.Infrastructure/Treasury/TreasuryCurrencyMapper.cs` mapping ISO 4217 to country_currency_desc
-- [ ] T034 Create `src/CardLedger.Infrastructure/Treasury/TreasuryRateSyncService.cs` with startup 6-month backfill and daily 00:00 UTC incremental sync
-- [ ] T035 Create `src/CardLedger.Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs` registering DbContext, repositories, Treasury client, and sync service
-- [ ] T036 Create `src/CardLedger.Api/Program.cs` with DI, problem details middleware, health checks, and deferred Kestrel listen until bootstrap sync completes
-- [ ] T037 Create `src/CardLedger.Api/appsettings.json` with ConnectionStrings, TreasurySync:BaseUrl, and TreasurySync:DailyRunTimeUtc
+- [X] T013 [P] Create `src/CardLedger.Domain/ValueObjects/Money.cs` with decimal amount and currency code
+- [X] T014 [P] Create `src/CardLedger.Domain/ValueObjects/CurrencyCode.cs` with ISO 4217 validation
+- [X] T015 [P] Create `src/CardLedger.Domain/ValueObjects/Pan.cs` with 16-digit validation
+- [X] T016 [P] Create `src/CardLedger.Domain/ValueObjects/Cvv.cs` with 3-digit validation
+- [X] T017 [P] Create `src/CardLedger.Domain/Entities/Card.cs` per data-model.md
+- [X] T018 [P] Create `src/CardLedger.Domain/Entities/Ledger.cs` per data-model.md
+- [X] T019 [P] Create `src/CardLedger.Domain/Entities/Transaction.cs` per data-model.md
+- [X] T020 [P] Create `src/CardLedger.Domain/Entities/ExchangeRate.cs` per data-model.md
+- [X] T021 [P] Create domain exceptions in `src/CardLedger.Domain/Exceptions/` (ExchangeRateNotFoundException, InsufficientBalanceException, InvalidCardCredentialsException, CardExpiredException, CardNotFoundException)
+- [X] T022 [P] Create `src/CardLedger.Domain/Services/CardNumberGenerator.cs` using RandomNumberGenerator for unique 16-digit PAN
+- [X] T023 [P] Create `src/CardLedger.Domain/Services/CvvHasher.cs` with SHA-256 hash and compare
+- [X] T024 [P] Create repository abstractions in `src/CardLedger.Application/Abstractions/` (ICardRepository, ILedgerRepository, ITransactionRepository, IExchangeRateRepository, ITreasuryRateClient, IUnitOfWork)
+- [X] T025 Create `src/CardLedger.Infrastructure/Persistence/CardLedgerDbContext.cs` with DbSets for Card, Ledger, Transaction, ExchangeRate
+- [X] T026 [P] Create EF entity configurations in `src/CardLedger.Infrastructure/Persistence/Configurations/` with decimal(18,4)/decimal(18,8) precision and unique indexes
+- [X] T027 Create initial EF migration in `src/CardLedger.Infrastructure/Persistence/Migrations/`
+- [X] T028 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/CardRepository.cs`
+- [X] T029 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/LedgerRepository.cs`
+- [X] T030 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/TransactionRepository.cs`
+- [X] T031 [P] Implement `src/CardLedger.Infrastructure/Persistence/Repositories/ExchangeRateRepository.cs`
+- [X] T032 Create `src/CardLedger.Infrastructure/Treasury/TreasuryRateClient.cs` calling Fiscal Data rates_of_exchange API
+- [X] T033 Create `src/CardLedger.Infrastructure/Treasury/TreasuryCurrencyMapper.cs` mapping ISO 4217 to country_currency_desc
+- [X] T034 Create `src/CardLedger.Infrastructure/Treasury/TreasuryRateSyncService.cs` with startup 6-month backfill and daily 00:00 UTC incremental sync
+- [X] T035 Create `src/CardLedger.Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs` registering DbContext, repositories, Treasury client, and sync service
+- [X] T036 Create `src/CardLedger.Api/Program.cs` with DI, problem details middleware, health checks, and deferred Kestrel listen until bootstrap sync completes
+- [X] T037 Create `src/CardLedger.Api/appsettings.json` with ConnectionStrings, TreasurySync:BaseUrl, and TreasurySync:DailyRunTimeUtc
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -85,13 +85,13 @@ other code. Include test tasks for gated modules in every feature plan.
 
 **Independent Test**: Submit issue request; verify 16-digit PAN, expiry (+3 years), CVV, currency, credit limit returned; ledger balance equals credit limit
 
-- [ ] T038 [P] [US1] Create `src/CardLedger.Application/DTOs/IssueCardRequest.cs` with decimal creditLimit and currency
-- [ ] T039 [P] [US1] Create `src/CardLedger.Application/DTOs/IssueCardResponse.cs` with cardNumber, expiryDate, cvv, currency, creditLimit
-- [ ] T040 [US1] Implement `src/CardLedger.Application/Services/IssueCardService.cs` creating Card + Ledger atomically via IUnitOfWork
-- [ ] T041 [US1] Create `src/CardLedger.Api/Endpoints/CardEndpoints.cs` mapping `POST /api/cards` per contracts/openapi.yaml
-- [ ] T042 [US1] Register IssueCardService and CardEndpoints in `src/CardLedger.Api/Program.cs`
-- [ ] T043 [US1] Add validation rejecting zero or negative creditLimit in `src/CardLedger.Application/Services/IssueCardService.cs`
-- [ ] T044 [P] [US1] Add recommended unit tests in `tests/CardLedger.Application.Tests/IssueCardServiceTests.cs`
+- [X] T038 [P] [US1] Create `src/CardLedger.Application/DTOs/IssueCardRequest.cs` with decimal creditLimit and currency
+- [X] T039 [P] [US1] Create `src/CardLedger.Application/DTOs/IssueCardResponse.cs` with cardNumber, expiryDate, cvv, currency, creditLimit
+- [X] T040 [US1] Implement `src/CardLedger.Application/Services/IssueCardService.cs` creating Card + Ledger atomically via IUnitOfWork
+- [X] T041 [US1] Create `src/CardLedger.Api/Endpoints/CardEndpoints.cs` mapping `POST /api/cards` per contracts/openapi.yaml
+- [X] T042 [US1] Register IssueCardService and CardEndpoints in `src/CardLedger.Api/Program.cs`
+- [X] T043 [US1] Add validation rejecting zero or negative creditLimit in `src/CardLedger.Application/Services/IssueCardService.cs`
+- [X] T044 [P] [US1] Add recommended unit tests in `tests/CardLedger.Application.Tests/IssueCardServiceTests.cs`
 
 **Checkpoint**: User Story 1 fully functional — card issuance and ledger initialisation work independently
 
@@ -103,14 +103,14 @@ other code. Include test tasks for gated modules in every feature plan.
 
 **Independent Test**: Issue card, submit valid purchase; verify transaction Guid returned and ledger balance reduced; invalid credentials and insufficient balance rejected
 
-- [ ] T045 [P] [US2] Create `src/CardLedger.Application/DTOs/PurchaseRequest.cs` with cardNumber, expiryDate, cvv, amount, currency, description
-- [ ] T046 [P] [US2] Create `src/CardLedger.Application/DTOs/PurchaseResponse.cs` with id, amount, currency, description
-- [ ] T047 [US2] Implement `src/CardLedger.Application/Services/CurrencyConversionService.cs` using latest cached rate for purchase debit
-- [ ] T048 [US2] Implement `src/CardLedger.Application/Services/PurchaseService.cs` with credential validation, FX debit, and transaction persist
-- [ ] T049 [US2] Create `src/CardLedger.Api/Endpoints/TransactionEndpoints.cs` mapping `POST /api/cards/transactions` per contracts/openapi.yaml
-- [ ] T050 [US2] Register PurchaseService and purchase endpoint in `src/CardLedger.Api/Program.cs`
-- [ ] T051 [US2] Handle edge cases in PurchaseService: expired card, invalid CVV, insufficient balance, zero-amount purchase in `src/CardLedger.Application/Services/PurchaseService.cs`
-- [ ] T052 [P] [US2] Add recommended unit tests in `tests/CardLedger.Application.Tests/PurchaseServiceTests.cs`
+- [X] T045 [P] [US2] Create `src/CardLedger.Application/DTOs/PurchaseRequest.cs` with cardNumber, expiryDate, cvv, amount, currency, description
+- [X] T046 [P] [US2] Create `src/CardLedger.Application/DTOs/PurchaseResponse.cs` with id, amount, currency, description
+- [X] T047 [US2] Implement `src/CardLedger.Application/Services/CurrencyConversionService.cs` using latest cached rate for purchase debit
+- [X] T048 [US2] Implement `src/CardLedger.Application/Services/PurchaseService.cs` with credential validation, FX debit, and transaction persist
+- [X] T049 [US2] Create `src/CardLedger.Api/Endpoints/TransactionEndpoints.cs` mapping `POST /api/cards/transactions` per contracts/openapi.yaml
+- [X] T050 [US2] Register PurchaseService and purchase endpoint in `src/CardLedger.Api/Program.cs`
+- [X] T051 [US2] Handle edge cases in PurchaseService: expired card, invalid CVV, insufficient balance, zero-amount purchase in `src/CardLedger.Application/Services/PurchaseService.cs`
+- [X] T052 [P] [US2] Add recommended unit tests in `tests/CardLedger.Application.Tests/PurchaseServiceTests.cs`
 
 **Checkpoint**: User Stories 1 AND 2 work — cards can be issued and purchases recorded
 
@@ -126,17 +126,17 @@ other code. Include test tasks for gated modules in every feature plan.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T053 [P] [US3] Create `tests/CardLedger.Application.Tests/ExchangeRate/ExchangeRateLookbackServiceTests.cs` with NSubstitute mocking IExchangeRateRepository (boundary, missing rate, multiple rates, same currency)
-- [ ] T054 [P] [US3] Create `tests/CardLedger.Application.Tests/ExchangeRate/CurrencyConversionTests.cs` for decimal arithmetic and rounding
-- [ ] T055 [US3] Verify 100% coverlet line and branch coverage gate passes for lookback namespace in `tests/CardLedger.Application.Tests/`
+- [X] T053 [P] [US3] Create `tests/CardLedger.Application.Tests/ExchangeRate/ExchangeRateLookbackServiceTests.cs` with NSubstitute mocking IExchangeRateRepository (boundary, missing rate, multiple rates, same currency)
+- [X] T054 [P] [US3] Create `tests/CardLedger.Application.Tests/ExchangeRate/CurrencyConversionTests.cs` for decimal arithmetic and rounding
+- [X] T055 [US3] Verify 100% coverlet line and branch coverage gate passes for lookback namespace in `tests/CardLedger.Application.Tests/`
 
 ### Implementation for User Story 3
 
-- [ ] T056 [US3] Implement `src/CardLedger.Application/Services/ExchangeRateLookbackService.cs` with 6-month inclusive lookback and latest-rate path
-- [ ] T057 [P] [US3] Create `src/CardLedger.Application/DTOs/TransactionDetailDto.cs` per contracts/openapi.yaml
-- [ ] T058 [US3] Implement `src/CardLedger.Application/Services/TransactionQueryService.cs` for list and single transaction with optional FX
-- [ ] T059 [US3] Add `GET /api/cards/{cardNumber}/transactions` and `GET /api/cards/{cardNumber}/transactions/{guid}` to `src/CardLedger.Api/Endpoints/TransactionEndpoints.cs`
-- [ ] T060 [US3] Map ExchangeRateNotFoundException to 422 problem details with card/transaction/currency/date context in `src/CardLedger.Api/Program.cs`
+- [X] T056 [US3] Implement `src/CardLedger.Application/Services/ExchangeRateLookbackService.cs` with 6-month inclusive lookback and latest-rate path
+- [X] T057 [P] [US3] Create `src/CardLedger.Application/DTOs/TransactionDetailDto.cs` per contracts/openapi.yaml
+- [X] T058 [US3] Implement `src/CardLedger.Application/Services/TransactionQueryService.cs` for list and single transaction with optional FX
+- [X] T059 [US3] Add `GET /api/cards/{cardNumber}/transactions` and `GET /api/cards/{cardNumber}/transactions/{guid}` to `src/CardLedger.Api/Endpoints/TransactionEndpoints.cs`
+- [X] T060 [US3] Map ExchangeRateNotFoundException to 422 problem details with card/transaction/currency/date context in `src/CardLedger.Api/Program.cs`
 
 **Checkpoint**: Transaction retrieval with FX conversion works; lookback tests pass at 100% coverage
 
@@ -148,11 +148,11 @@ other code. Include test tasks for gated modules in every feature plan.
 
 **Independent Test**: Issue card, make purchases, request balance in target currency; verify ledger amount converted using latest rate
 
-- [ ] T061 [P] [US4] Create `src/CardLedger.Application/DTOs/BalanceResponse.cs` per contracts/openapi.yaml
-- [ ] T062 [US4] Implement `src/CardLedger.Application/Services/BalanceService.cs` reading ledger and converting via latest rate
-- [ ] T063 [US4] Create `src/CardLedger.Api/Endpoints/BalanceEndpoints.cs` mapping `GET /api/cards/{cardNumber}/balance` per contracts/openapi.yaml
-- [ ] T064 [US4] Register BalanceService and BalanceEndpoints in `src/CardLedger.Api/Program.cs`
-- [ ] T065 [US4] Map missing latest rate to 422 problem details in BalanceService error path
+- [X] T061 [P] [US4] Create `src/CardLedger.Application/DTOs/BalanceResponse.cs` per contracts/openapi.yaml
+- [X] T062 [US4] Implement `src/CardLedger.Application/Services/BalanceService.cs` reading ledger and converting via latest rate
+- [X] T063 [US4] Create `src/CardLedger.Api/Endpoints/BalanceEndpoints.cs` mapping `GET /api/cards/{cardNumber}/balance` per contracts/openapi.yaml
+- [X] T064 [US4] Register BalanceService and BalanceEndpoints in `src/CardLedger.Api/Program.cs`
+- [X] T065 [US4] Map missing latest rate to 422 problem details in BalanceService error path
 
 **Checkpoint**: All four user stories independently functional
 
@@ -162,13 +162,13 @@ other code. Include test tasks for gated modules in every feature plan.
 
 **Purpose**: Integration tests, coverage enforcement, documentation, and end-to-end validation
 
-- [ ] T066 [P] Create E2E test in `tests/CardLedger.Integration.Tests/CardLedgerFlowTests.cs` (issue → purchase → balance) using WebApplicationFactory and Testcontainers PostgreSQL 18
-- [ ] T067 [P] Create lookback failure integration test in `tests/CardLedger.Integration.Tests/ExchangeRateFailureTests.cs` expecting 422
-- [ ] T068 Configure coverlet 100% threshold for Application lookback assembly in `Directory.Build.props`
-- [ ] T069 Run full test suite with coverage gate via `dotnet test CardLedger.slnx --collect:"XPlat Code Coverage"`
-- [ ] T070 Validate quickstart scenarios A–H from `specs/001-card-ledger-api/quickstart.md` using Docker Compose
-- [ ] T071 Update `README.md` with build, test, and Docker run instructions
-- [ ] T072 Perform final constitution compliance review against `.specify/memory/constitution.md`
+- [X] T066 [P] Create E2E test in `tests/CardLedger.Integration.Tests/CardLedgerFlowTests.cs` (issue → purchase → balance) using WebApplicationFactory and Testcontainers PostgreSQL 18
+- [X] T067 [P] Create lookback failure integration test in `tests/CardLedger.Integration.Tests/ExchangeRateFailureTests.cs` expecting 422
+- [X] T068 Configure coverlet 100% threshold for Application lookback assembly in `Directory.Build.props`
+- [X] T069 Run full test suite with coverage gate via `dotnet test CardLedger.slnx --collect:"XPlat Code Coverage"`
+- [X] T070 Validate quickstart scenarios A–H from `specs/001-card-ledger-api/quickstart.md` using Docker Compose
+- [X] T071 Update `README.md` with build, test, and Docker run instructions
+- [X] T072 Perform final constitution compliance review against `.specify/memory/constitution.md`
 
 ---
 

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CardLedger.Api/CardLedger.Api.csproj" />
+    <Project Path="src/CardLedger.Application/CardLedger.Application.csproj" />
+    <Project Path="src/CardLedger.Domain/CardLedger.Domain.csproj" />
+    <Project Path="src/CardLedger.Infrastructure/CardLedger.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CardLedger.Application.Tests/CardLedger.Application.Tests.csproj" />
+    <Project Path="tests/CardLedger.Domain.Tests/CardLedger.Domain.Tests.csproj" />
+    <Project Path="tests/CardLedger.Integration.Tests/CardLedger.Integration.Tests.csproj" />
+  </Folder>
+</Solution>
