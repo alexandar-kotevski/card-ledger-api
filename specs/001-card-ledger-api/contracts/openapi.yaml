@@ -1,0 +1,356 @@
+openapi: 3.2.0
+info:
+  title: Card Ledger API
+  description: |
+    Card issuance, purchase, transaction retrieval with Treasury FX conversion,
+    and ledger-backed available balance queries.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local Docker stack
+
+tags:
+  - name: Cards
+    description: Card issuance
+  - name: Transactions
+    description: Purchases and transaction queries
+  - name: Balance
+    description: Available balance queries
+
+paths:
+  /api/cards:
+    post:
+      tags: [Cards]
+      operationId: issueCard
+      summary: Issue a new card
+      description: |
+        Creates a card with generated PAN, expiry (3 years from issue), and CVV.
+        Initialises a ledger record with available balance equal to credit limit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCardRequest'
+      responses:
+        '201':
+          description: Card issued successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueCardResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/cards/transactions:
+    post:
+      tags: [Transactions]
+      operationId: createPurchase
+      summary: Record a purchase
+      description: |
+        Validates card credentials, records a transaction (datetime defaults to now),
+        and debits the card ledger available balance.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '201':
+          description: Purchase recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/cards/{cardNumber}/transactions:
+    get:
+      tags: [Transactions]
+      operationId: listTransactions
+      summary: List transactions for a card
+      description: |
+        Returns all transactions for the card. When targetCurrency is provided,
+        each amount is converted using Treasury rates within a 6-month lookback
+        window on or before the transaction date.
+      parameters:
+        - $ref: '#/components/parameters/CardNumber'
+        - name: targetCurrency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          description: ISO 4217 currency code for FX conversion
+      responses:
+        '200':
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ExchangeRateNotFound'
+
+  /api/cards/{cardNumber}/transactions/{transactionId}:
+    get:
+      tags: [Transactions]
+      operationId: getTransaction
+      summary: Get a single transaction
+      description: |
+        Returns one transaction by identifier. When targetCurrency is provided,
+        applies the same 6-month Treasury lookback conversion as the list endpoint.
+      parameters:
+        - $ref: '#/components/parameters/CardNumber'
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: targetCurrency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+      responses:
+        '200':
+          description: Transaction detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ExchangeRateNotFound'
+
+  /api/cards/{cardNumber}/balance:
+    get:
+      tags: [Balance]
+      operationId: getAvailableBalance
+      summary: Get available balance
+      description: |
+        Returns ledger-stored available balance converted to the target currency
+        using the latest cached Treasury exchange rate.
+      parameters:
+        - $ref: '#/components/parameters/CardNumber'
+        - name: targetCurrency
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+      responses:
+        '200':
+          description: Available balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ExchangeRateNotFound'
+
+components:
+  parameters:
+    CardNumber:
+      name: cardNumber
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^\d{16}$'
+      description: 16-digit card PAN
+
+  schemas:
+    IssueCardRequest:
+      type: object
+      required: [creditLimit, currency]
+      properties:
+        creditLimit:
+          type: string
+          pattern: '^\d+(\.\d{1,4})?$'
+          example: '5000.00'
+          description: Decimal-precision credit limit (string to avoid JSON double)
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          example: USD
+
+    IssueCardResponse:
+      type: object
+      required: [cardNumber, expiryDate, cvv, currency, creditLimit]
+      properties:
+        cardNumber:
+          type: string
+          pattern: '^\d{16}$'
+          example: '4111111111111111'
+        expiryDate:
+          type: string
+          format: date
+          example: '2029-07-02'
+        cvv:
+          type: string
+          pattern: '^\d{3}$'
+          example: '123'
+        currency:
+          type: string
+          example: USD
+        creditLimit:
+          type: string
+          example: '5000.00'
+
+    PurchaseRequest:
+      type: object
+      required: [cardNumber, expiryDate, cvv, amount, currency, description]
+      properties:
+        cardNumber:
+          type: string
+          pattern: '^\d{16}$'
+        expiryDate:
+          type: string
+          format: date
+        cvv:
+          type: string
+          pattern: '^\d{3}$'
+        amount:
+          type: string
+          pattern: '^\d+(\.\d{1,4})?$'
+          example: '150.00'
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        description:
+          type: string
+          maxLength: 200
+          example: Grocery store purchase
+
+    PurchaseResponse:
+      type: object
+      required: [id, amount, currency, description]
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          example: '150.00'
+        currency:
+          type: string
+        description:
+          type: string
+
+    TransactionDetail:
+      type: object
+      required: [id, description, transactionDate, amount, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        transactionDate:
+          type: string
+          format: date-time
+        amount:
+          type: string
+          description: Original transaction amount
+        currency:
+          type: string
+          description: Original transaction currency
+        convertedAmount:
+          type: string
+          description: Present when targetCurrency query param was supplied
+        convertedCurrency:
+          type: string
+        rateUsed:
+          type: string
+          description: Exchange rate applied (decimal string)
+        rateDate:
+          type: string
+          format: date
+          description: Treasury record_date of the rate used
+
+    BalanceResponse:
+      type: object
+      required: [availableBalance, currency]
+      properties:
+        availableBalance:
+          type: string
+          example: '4850.00'
+        currency:
+          type: string
+          description: Target currency requested
+        rateUsed:
+          type: string
+        rateDate:
+          type: string
+          format: date
+
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        cardNumber:
+          type: string
+        transactionId:
+          type: string
+          format: uuid
+        sourceCurrency:
+          type: string
+        targetCurrency:
+          type: string
+        transactionDate:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFound:
+      description: Card or transaction not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    UnprocessableEntity:
+      description: Business rule violation (invalid credentials, insufficient balance)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    ExchangeRateNotFound:
+      description: No Treasury rate available within lookback window or for latest rate
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
