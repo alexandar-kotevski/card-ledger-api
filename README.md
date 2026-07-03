@@ -92,14 +92,16 @@ Production deployments, docs are off unless you opt in with the same setting.
 |--------|------|---------|
 | POST | `/api/cards` | Issue card |
 | POST | `/api/cards/transactions` | Record purchase |
-| GET | `/api/cards/{cardNumber}/transactions` | List transactions |
-| GET | `/api/cards/{cardNumber}/transactions/{guid}` | Get transaction |
+| GET | `/api/cards/{cardNumber}/transactions` | List transactions; optional `?targetCurrency=` adds convertedAmount/convertedCurrency |
+| GET | `/api/cards/{cardNumber}/transactions/{guid}` | Get transaction; optional `?targetCurrency=` adds convertedAmount/convertedCurrency |
 | GET | `/api/cards/{cardNumber}/balance` | Ledger balance; optional `?targetCurrency=` adds convertedBalance/convertedCurrency |
 
-Monetary amounts are serialized as decimal strings in JSON. Card expiry dates use
-MM/YY format (e.g. `"07/29"`). Supported currencies are ISO 4217 codes with cached
-Treasury exchange rates on or after 2025-12-31. See
-[specs/001-card-ledger-api/contracts/openapi.yaml](specs/001-card-ledger-api/contracts/openapi.yaml).
+Monetary amounts are serialised as decimal strings (up to four fractional digits;
+trailing zeros omitted). Exchange rates use up to eight fractional digits. Card
+expiry dates use MM/YY format (e.g. `"07/29"`). Supported currencies are ISO 4217
+codes with cached Treasury exchange rates on or after 2025-12-31. See
+[specs/001-card-ledger-api/contracts/openapi.yaml](specs/001-card-ledger-api/contracts/openapi.yaml)
+and [quickstart.md](specs/001-card-ledger-api/quickstart.md) for full scenarios.
 
 ### Example — issue card
 
@@ -120,6 +122,31 @@ POST /api/cards
 }
 ```
 
+### Example — record purchase
+
+```json
+POST /api/cards/transactions
+{
+  "cardNumber": "4111111111111111",
+  "expiryDate": "07/29",
+  "cvv": "123",
+  "amount": "150.00",
+  "currency": "USD",
+  "description": "Office supplies"
+}
+
+201 Response:
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "amount": "150.00",
+  "currency": "USD",
+  "description": "Office supplies"
+}
+```
+
+Cross-currency purchases debit the ledger in the card's currency using the latest
+Treasury rate (e.g. a EUR purchase on a USD card converts before the balance check).
+
 ### Example — balance with FX
 
 ```json
@@ -131,7 +158,47 @@ GET /api/cards/4111111111111111/balance?targetCurrency=EUR
   "currency": "USD",
   "convertedBalance": "4365.00",
   "convertedCurrency": "EUR",
-  "rateUsed": "0.9000",
+  "rateUsed": "0.9",
   "rateDate": "2026-06-30"
 }
 ```
+
+`availableBalance` and `currency` are always the ledger values. Converted fields
+appear only when `targetCurrency` differs from the ledger currency.
+
+### Example — transactions with FX (cross-currency)
+
+```json
+GET /api/cards/4111111111111111/transactions?targetCurrency=BGN
+
+200 Response (one item shown):
+[
+  {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "description": "Sydney cafe",
+    "transactionDate": "2026-07-03T05:12:56Z",
+    "amount": "50.00",
+    "currency": "AUD",
+    "convertedAmount": "29.6143",
+    "convertedCurrency": "BGN",
+    "rateUsed": "0.592286",
+    "rateDate": "2026-01-15"
+  }
+]
+```
+
+`amount` and `currency` are always the stored transaction values. For direct pairs
+(e.g. USD → BGN), `rateUsed` matches the Treasury leg; for cross pairs (e.g. AUD →
+BGN), it is the effective rate (`convertedAmount / amount`).
+
+### FX conversion notes
+
+- **Balance** responses use `convertedBalance`; **transaction** responses use
+  `convertedAmount`.
+- When `targetCurrency` matches the source currency (ledger or transaction),
+  converted and rate fields are omitted.
+- **`rateUsed`** — effective source→target rate applied to the primary amount.
+- **`rateDate`** — Treasury `effective_date` of the target currency leg (or the
+  source leg when converting to USD).
+- Rates are looked up within a six-month window ending on the transaction date;
+  missing rates return **422** with problem details.
