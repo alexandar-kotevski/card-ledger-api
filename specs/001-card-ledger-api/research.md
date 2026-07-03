@@ -138,7 +138,7 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,effective_d
 
 ## Testing
 
-**Decision**: xUnit + NSubstitute for unit tests; coverlet 100% gate on Application lookback namespace; Testcontainers.PostgreSql (PostgreSQL 18) for integration tests.
+**Decision**: xUnit + NSubstitute for unit tests; coverlet 100% **line** coverage gate on `ExchangeRateLookbackService`, `CurrencyConversionService`, and `ConversionRateMetadata`; Testcontainers.PostgreSql (PostgreSQL 18) for integration tests.
 
 **Rationale**: Constitution and user requirements; NSubstitute mocks `IExchangeRateRepository` for deterministic lookback tests.
 

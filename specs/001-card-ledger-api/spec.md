@@ -59,9 +59,9 @@ reduced.
 
 ### User Story 3 - Retrieve Transactions with Currency Conversion (Priority: P3)
 
-An integrator retrieves all transactions for a card, with each transaction
-amount optionally converted to a requested target currency using Treasury
-exchange rates.
+An integrator retrieves all transactions for a card. Each transaction is
+returned in its stored amount and currency; when a target currency is provided
+and differs, converted fields use Treasury exchange rates.
 
 **Why this priority**: Transaction history with accurate currency conversion is
 essential for reporting and reconciliation; it depends on cards and purchases
@@ -73,7 +73,7 @@ values using Treasury rates within the 6-month lookback window.
 
 **Acceptance Scenarios**:
 
-1. **Given** a card with stored transactions, **When** transactions are retrieved with a target currency, **Then** each transaction amount is converted using the Treasury rate on or before the transaction date within a strict 6-month lookback window.
+1. **Given** a card with stored transactions, **When** transactions are retrieved with a target currency, **Then** each transaction retains its stored amount and currency in the primary fields and conversion uses the Treasury rate on or before the transaction date within a strict 6-month lookback window.
 2. **Given** no Treasury rate exists within the 6-month lookback window for a transaction, **When** transactions are retrieved with currency conversion, **Then** the system fails with a precise, identifiable error describing the card, transaction, currency, and date context.
 3. **Given** multiple Treasury rates exist on or before a transaction date within the lookback window, **When** conversion is performed, **Then** the most recent applicable rate is used.
 4. **Given** a card with no transactions, **When** transactions are retrieved, **Then** an empty list is returned.
@@ -151,7 +151,7 @@ convertedBalance and convertedCurrency reflect the latest Treasury rate.
 
 **Transaction retrieval with currency conversion**
 
-- **FR-009**: System MUST retrieve all transactions for a card, optionally expressing each amount in a requested target currency.
+- **FR-009**: System MUST retrieve all transactions for a card, returning each transaction's stored amount and currency in the primary fields. When a target currency is provided and differs from a transaction's currency, the system MUST also return converted amounts in `convertedAmount` and `convertedCurrency`.
 - **FR-010**: For transaction currency conversion, system MUST obtain exchange rates from the Treasury service using a strict 6-month historical lookback on or before each transaction's effective date.
 - **FR-011**: When no Treasury rate exists within the 6-month lookback window for a transaction, system MUST fail with a precise domain exception (not a generic error).
 
@@ -172,7 +172,7 @@ convertedBalance and convertedCurrency reflect the latest Treasury rate.
 - **Card**: Represents an issued payment card. Attributes: 16-digit card number (PAN), expiry date (MM/YY in API; last day of month in storage), CVV, credit limit (decimal + currency). Linked to one Ledger record and many Transactions.
 - **Ledger**: Represents the available spend balance for a card. One record per card. Attributes: available balance (decimal + currency). Created on card issue; updated on each successful purchase.
 - **Transaction**: Represents a purchase entry. Attributes: unique identifier, description, effective datetime, amount (decimal + currency). Belongs to one Card.
-- **ExchangeRate**: Logical representation of a currency conversion rate sourced from the Treasury service. Attributes: source currency, target currency, rate (decimal), effective date.
+- **ExchangeRate**: Cached Treasury rate for a currency versus USD. Attributes: currency code, rate (decimal, foreign currency units per 1 USD), effective date.
 
 ## Success Criteria *(mandatory)*
 

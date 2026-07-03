@@ -294,7 +294,7 @@ components:
           type: string
         rateUsed:
           type: string
-          description: Effective conversion rate from original amount currency to converted currency (decimal string)
+          description: Effective conversion rate from transaction currency to converted currency (decimal string)
         rateDate:
           type: string
           format: date
@@ -318,7 +318,7 @@ components:
           type: string
         rateUsed:
           type: string
-          description: Effective conversion rate from original amount currency to converted currency (decimal string)
+          description: Effective conversion rate from ledger currency to converted currency (decimal string)
         rateDate:
           type: string
           format: date

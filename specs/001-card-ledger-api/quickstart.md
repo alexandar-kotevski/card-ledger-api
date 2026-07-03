@@ -141,7 +141,7 @@ dotnet test CardLedger.slnx --collect:"XPlat Code Coverage"
 
 Verify:
 - All tests pass
-- `CardLedger.Application` lookback namespace meets 100% line and branch coverage (coverlet gate)
+- Coverlet enforces 100% line coverage on `ExchangeRateLookbackService`, `CurrencyConversionService`, and `ConversionRateMetadata` (see `Directory.Build.props`)
 
 ## Teardown
 
