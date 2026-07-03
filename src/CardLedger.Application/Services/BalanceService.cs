@@ -49,9 +49,7 @@ public sealed class BalanceService
         {
             return new BalanceResponse(
                 ledger.AvailableBalance,
-                ledger.Currency,
-                null,
-                null);
+                ledger.Currency);
         }
 
         var conversion = await _exchangeRateLookbackService
@@ -64,6 +62,8 @@ public sealed class BalanceService
             .ConfigureAwait(false);
 
         return new BalanceResponse(
+            ledger.AvailableBalance,
+            ledger.Currency,
             conversion.ConvertedAmount,
             conversion.TargetCurrency,
             conversion.TargetRate ?? conversion.SourceRate,

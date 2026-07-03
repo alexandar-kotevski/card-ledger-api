@@ -179,8 +179,9 @@ GET /api/cards/{cardNumber}/transactions/{guid}[?targetCurrency=]
 ```
 GET /api/cards/{cardNumber}/balance[?targetCurrency=]
   → Load Ledger for card
-  → If targetCurrency omitted: return AvailableBalance in ledger currency (no FX)
-  → If targetCurrency provided: convert using MAX(EffectiveDate) rate
+  → Always return AvailableBalance + Currency (ledger values)
+  → If targetCurrency omitted or matches ledger: no FX fields
+  → If targetCurrency differs: also return convertedBalance/convertedCurrency using MAX(EffectiveDate) rate
   → On missing latest rate: throw ExchangeRateNotFoundException
 ```
 

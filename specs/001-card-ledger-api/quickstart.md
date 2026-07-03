@@ -99,8 +99,10 @@ curl "http://localhost:8080/api/cards/<PAN>/balance?targetCurrency=EUR"
 ```
 
 **Expected (200)**:
-- `availableBalance`: converted amount in EUR
-- `currency`: `EUR`
+- `availableBalance`: `4850.00` (ledger amount in card currency)
+- `currency`: `USD` (ledger currency)
+- `convertedBalance`: converted ledger balance in EUR
+- `convertedCurrency`: `EUR`
 - `rateUsed` and `rateDate` present when FX applied
 
 ## Scenario F — Lookback Failure

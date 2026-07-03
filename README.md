@@ -87,7 +87,7 @@ Production deployments, docs are off unless you opt in with the same setting.
 | POST | `/api/cards/transactions` | Record purchase |
 | GET | `/api/cards/{cardNumber}/transactions` | List transactions |
 | GET | `/api/cards/{cardNumber}/transactions/{guid}` | Get transaction |
-| GET | `/api/cards/{cardNumber}/balance` | Available balance (optional `?targetCurrency=` for FX) |
+| GET | `/api/cards/{cardNumber}/balance` | Ledger balance; optional `?targetCurrency=` adds convertedBalance/convertedCurrency |
 
 Monetary amounts are serialized as decimal strings in JSON. Card expiry dates use
 MM/YY format (e.g. `"07/29"`). Supported currencies are ISO 4217 codes with cached

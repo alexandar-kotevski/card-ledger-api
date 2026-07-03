@@ -145,10 +145,11 @@ paths:
       operationId: getAvailableBalance
       summary: Get available balance
       description: |
-        Returns ledger-stored available balance. When targetCurrency is omitted,
-        returns the balance in the card ledger currency without FX conversion.
-        When targetCurrency is provided, converts using the latest cached Treasury
-        exchange rate.
+        Returns ledger-stored available balance in the card's ledger currency.
+        When targetCurrency is omitted, no FX conversion is applied.
+        When targetCurrency is provided and differs from the ledger currency,
+        also returns convertedBalance and convertedCurrency using the latest
+        cached Treasury exchange rate.
       parameters:
         - $ref: '#/components/parameters/CardNumber'
         - name: targetCurrency
@@ -303,16 +304,22 @@ components:
         availableBalance:
           type: string
           example: '4850.00'
+          description: Ledger-stored available balance
         currency:
           type: string
-          description: |
-            Response currency — ledger currency when targetCurrency was omitted,
-            otherwise the requested target currency
+          description: Card ledger currency
+        convertedBalance:
+          type: string
+          description: Present when targetCurrency query param was supplied and differs from ledger currency
+        convertedCurrency:
+          type: string
         rateUsed:
           type: string
+          description: Exchange rate applied (decimal string)
         rateDate:
           type: string
           format: date
+          description: Treasury effective_date of the rate used
 
     ProblemDetails:
       type: object

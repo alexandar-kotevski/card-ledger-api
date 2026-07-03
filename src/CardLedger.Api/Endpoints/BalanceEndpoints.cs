@@ -60,6 +60,8 @@ public static class BalanceEndpoints
         return Results.Ok(new BalanceApiResponse(
             CardEndpoints.FormatDecimal(response.AvailableBalance),
             response.Currency,
+            response.ConvertedBalance is null ? null : CardEndpoints.FormatDecimal(response.ConvertedBalance.Value),
+            response.ConvertedCurrency,
             response.RateUsed is null ? null : CardEndpoints.FormatDecimal(response.RateUsed.Value),
             response.RateDate));
     }

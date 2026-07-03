@@ -46,6 +46,21 @@ internal sealed class IntegrationTestCurrencyBootstrap : IHostedService
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        if (!await db.ExchangeRates.AnyAsync(x => x.CurrencyCode == "EUR", cancellationToken).ConfigureAwait(false))
+        {
+            await db.ExchangeRates.AddAsync(
+                new ExchangeRate
+                {
+                    CountryCurrencyDesc = "Euro-Euro",
+                    CurrencyCode = "EUR",
+                    Rate = 0.90m,
+                    EffectiveDate = seedDate,
+                    RecordDate = seedDate
+                },
+                cancellationToken).ConfigureAwait(false);
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+
         var cache = scope.ServiceProvider.GetRequiredService<ISupportedCurrencyCache>();
         await cache.RefreshAsync(cancellationToken).ConfigureAwait(false);
     }

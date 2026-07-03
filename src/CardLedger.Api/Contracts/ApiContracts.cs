@@ -46,9 +46,11 @@ public sealed record TransactionDetailApiResponse(
     string? RateUsed,
     DateOnly? RateDate);
 
-/// <summary>Available balance in ledger or converted target currency.</summary>
+/// <summary>Available balance in ledger currency, with optional FX conversion fields.</summary>
 public sealed record BalanceApiResponse(
     string AvailableBalance,
     string Currency,
+    string? ConvertedBalance,
+    string? ConvertedCurrency,
     string? RateUsed,
     DateOnly? RateDate);

@@ -82,24 +82,24 @@ values using Treasury rates within the 6-month lookback window.
 
 ### User Story 4 - Retrieve Available Balance (Priority: P4)
 
-An integrator checks the remaining spend capacity for a card. When a target
-currency is omitted, the balance is returned in the card ledger currency. When
-provided, the balance is read from the ledger and converted using the latest
-available Treasury exchange rate.
+An integrator checks the remaining spend capacity for a card. The response
+always includes the ledger-stored balance in the card currency. When a target
+currency is provided and differs from the ledger currency, the response also
+includes the balance converted using the latest available Treasury exchange rate.
 
 **Why this priority**: Available balance enables spend-authorisation decisions;
 it depends on the ledger being maintained through issue and purchase operations.
 
 **Independent Test**: Issue a card, make purchases, request available balance
-with and without a target currency; verify the returned balance matches the
-ledger value (converted using the latest Treasury rate when a different target
-currency is requested).
+with and without a target currency; verify the ledger balance is always returned
+in the primary fields and, when a different target currency is requested,
+convertedBalance and convertedCurrency reflect the latest Treasury rate.
 
 **Acceptance Scenarios**:
 
-1. **Given** a card with a ledger record, **When** available balance is requested without a target currency, **Then** the system returns the ledger-stored available balance in the card currency with no FX conversion.
-2. **Given** a card with a ledger record, **When** available balance is requested for a target currency, **Then** the system returns the ledger-stored available balance converted using the latest available Treasury exchange rate.
-3. **Given** a newly issued card with no purchases, **When** available balance is requested, **Then** the returned balance equals the credit limit (converted to the target currency if different from the card currency).
+1. **Given** a card with a ledger record, **When** available balance is requested without a target currency, **Then** the system returns the ledger-stored available balance in the card currency with no FX conversion fields.
+2. **Given** a card with a ledger record, **When** available balance is requested for a target currency different from the ledger currency, **Then** the system returns the ledger-stored available balance in the primary fields and the converted amount in the requested currency using the latest available Treasury exchange rate.
+3. **Given** a newly issued card with no purchases, **When** available balance is requested, **Then** the returned availableBalance equals the credit limit in the ledger currency (with convertedBalance reflecting the target currency when provided and different).
 4. **Given** no latest Treasury rate exists for the required currency pair, **When** available balance is requested with FX conversion, **Then** the system fails with a precise, identifiable error.
 5. **Given** a card that has had multiple purchases, **When** available balance is requested, **Then** the returned balance reflects all prior purchase debits recorded in the ledger.
 
@@ -157,7 +157,7 @@ currency is requested).
 
 **Available balance**
 
-- **FR-012**: System MUST return available balance from the ledger record. When target currency is omitted, balance MUST be returned in the card ledger currency. When target currency is provided, balance MUST be expressed in that currency using the latest Treasury rate.
+- **FR-012**: System MUST return available balance from the ledger record in the primary response fields (`availableBalance`, `currency`). When target currency is omitted or matches the ledger currency, no FX conversion fields are returned. When target currency is provided and differs from the ledger currency, the system MUST also return the converted balance in `convertedBalance` and `convertedCurrency` using the latest Treasury rate.
 - **FR-013**: For available balance conversion, system MUST use the latest available Treasury exchange rate (not the per-transaction historical lookback rule).
 
 **Cross-cutting**
