@@ -74,10 +74,12 @@ using (var scope = app.Services.CreateScope())
 app.MapHealthChecks("/health");
 app.MapCardLedgerOpenApi();
 
+// Canonical endpoint order (happy path): issue → purchase → balance → list transactions → get transaction.
 var cards = app.MapGroup("/api/cards");
 cards.MapCardEndpoints();
-cards.MapTransactionEndpoints();
+cards.MapTransactionWriteEndpoints();
 cards.MapBalanceEndpoints();
+cards.MapTransactionReadEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 

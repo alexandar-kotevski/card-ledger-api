@@ -88,13 +88,16 @@ Production deployments, docs are off unless you opt in with the same setting.
 
 ## API overview
 
+Endpoints are listed in happy-path order (issue → purchase → balance → query transactions).
+OpenAPI tags group by domain: **Cards**, **Transactions**, **Balance**.
+
 | Method | Path | Purpose |
 |--------|------|---------|
 | POST | `/api/cards` | Issue card |
 | POST | `/api/cards/transactions` | Record purchase |
+| GET | `/api/cards/{cardNumber}/balance` | Ledger balance; optional `?targetCurrency=` adds convertedBalance/convertedCurrency |
 | GET | `/api/cards/{cardNumber}/transactions` | List transactions; optional `?targetCurrency=` adds convertedAmount/convertedCurrency |
 | GET | `/api/cards/{cardNumber}/transactions/{guid}` | Get transaction; optional `?targetCurrency=` adds convertedAmount/convertedCurrency |
-| GET | `/api/cards/{cardNumber}/balance` | Ledger balance; optional `?targetCurrency=` adds convertedBalance/convertedCurrency |
 
 Monetary amounts are serialised as decimal strings (up to four fractional digits;
 trailing zeros omitted). Exchange rates use up to eight fractional digits. Card

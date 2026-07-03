@@ -4,6 +4,8 @@
 
 Validation guide for end-to-end feature verification. See [data-model.md](./data-model.md) and [contracts/openapi.yaml](./contracts/openapi.yaml) for details.
 
+Scenarios follow the API happy path: issue card → purchase → balance → query transactions.
+
 ## Prerequisites
 
 - Docker Desktop (or Docker Engine + Compose)
@@ -61,27 +63,9 @@ curl -X POST http://localhost:8080/api/cards/transactions `
 - `currency`: `USD`
 - `description`: `Test purchase`
 
-## Scenario C — List Transactions with FX
+Save the transaction `id` from the response for Scenario F.
 
-```powershell
-curl "http://localhost:8080/api/cards/<PAN>/transactions?targetCurrency=EUR"
-```
-
-**Expected (200)**:
-- Array with at least one transaction from Scenario B
-- `convertedAmount`, `convertedCurrency`, `rateUsed`, `rateDate` populated when FX applied (omitted when `targetCurrency` matches transaction currency)
-
-## Scenario D — Single Transaction with FX
-
-```powershell
-curl "http://localhost:8080/api/cards/<PAN>/transactions/<transaction-id>?targetCurrency=EUR"
-```
-
-**Expected (200)**:
-- Single transaction matching Scenario B purchase
-- FX conversion fields present
-
-## Scenario E — Available Balance (ledger currency)
+## Scenario C — Available Balance (ledger currency)
 
 ```powershell
 curl "http://localhost:8080/api/cards/<PAN>/balance"
@@ -92,7 +76,7 @@ curl "http://localhost:8080/api/cards/<PAN>/balance"
 - `currency`: `USD` (ledger currency)
 - `rateUsed` and `rateDate` omitted (no FX applied)
 
-## Scenario E2 — Available Balance with FX
+## Scenario D — Available Balance with FX
 
 ```powershell
 curl "http://localhost:8080/api/cards/<PAN>/balance?targetCurrency=EUR"
@@ -105,7 +89,27 @@ curl "http://localhost:8080/api/cards/<PAN>/balance?targetCurrency=EUR"
 - `convertedCurrency`: `EUR`
 - `rateUsed` and `rateDate` present when FX applied
 
-## Scenario F — Lookback Failure
+## Scenario E — List Transactions with FX
+
+```powershell
+curl "http://localhost:8080/api/cards/<PAN>/transactions?targetCurrency=EUR"
+```
+
+**Expected (200)**:
+- Array with at least one transaction from Scenario B
+- `convertedAmount`, `convertedCurrency`, `rateUsed`, `rateDate` populated when FX applied (omitted when `targetCurrency` matches transaction currency)
+
+## Scenario F — Single Transaction with FX
+
+```powershell
+curl "http://localhost:8080/api/cards/<PAN>/transactions/<transaction-id>?targetCurrency=EUR"
+```
+
+**Expected (200)**:
+- Single transaction matching Scenario B purchase
+- FX conversion fields present
+
+## Scenario G — Lookback Failure
 
 This scenario validates the 6-month lookback domain exception. Requires a
 transaction where no Treasury rate exists within the window — typically
@@ -115,14 +119,14 @@ verified via integration tests with seeded data rather than manual curl.
 - Problem details with `title` indicating exchange rate not found
 - Context fields: `cardNumber`, `transactionId`, `sourceCurrency`, `targetCurrency`, `transactionDate`
 
-## Scenario G — Invalid Purchase (Insufficient Balance)
+## Scenario H — Invalid Purchase (Insufficient Balance)
 
 Issue a card with low limit, attempt purchase exceeding balance.
 
 **Expected (422)**:
 - Problem details indicating insufficient balance
 
-## Scenario H — Invalid Credentials
+## Scenario I — Invalid Credentials
 
 Submit purchase with wrong CVV.
 

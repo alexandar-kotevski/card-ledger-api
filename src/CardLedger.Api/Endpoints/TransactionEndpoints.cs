@@ -9,7 +9,7 @@ namespace CardLedger.Api.Endpoints;
 
 public static class TransactionEndpoints
 {
-    public static RouteGroupBuilder MapTransactionEndpoints(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapTransactionWriteEndpoints(this RouteGroupBuilder group)
     {
         group.MapPost("/transactions", PurchaseAsync)
             .WithName("CreatePurchase")
@@ -24,6 +24,11 @@ public static class TransactionEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
+        return group;
+    }
+
+    public static RouteGroupBuilder MapTransactionReadEndpoints(this RouteGroupBuilder group)
+    {
         group.MapGet("/{cardNumber}/transactions", ListTransactionsAsync)
             .WithName("ListTransactions")
             .WithSummary("List transactions for a card")
@@ -48,6 +53,13 @@ public static class TransactionEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
+        return group;
+    }
+
+    public static RouteGroupBuilder MapTransactionEndpoints(this RouteGroupBuilder group)
+    {
+        group.MapTransactionWriteEndpoints();
+        group.MapTransactionReadEndpoints();
         return group;
     }
 

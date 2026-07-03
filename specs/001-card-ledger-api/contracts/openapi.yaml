@@ -18,6 +18,8 @@ tags:
   - name: Balance
     description: Available balance queries
 
+# Paths follow happy-path order (issue → purchase → balance → query transactions).
+# OpenAPI tags group by domain; Scalar lists operations within each tag.
 paths:
   /api/cards:
     post:
@@ -72,6 +74,40 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/cards/{cardNumber}/balance:
+    get:
+      tags: [Balance]
+      operationId: getAvailableBalance
+      summary: Get available balance
+      description: |
+        Returns ledger-stored available balance in the card's ledger currency.
+        When targetCurrency is omitted, no FX conversion is applied.
+        When targetCurrency is provided and differs from the ledger currency,
+        also returns convertedBalance and convertedCurrency using the latest
+        cached Treasury exchange rate.
+      parameters:
+        - $ref: '#/components/parameters/CardNumber'
+        - name: targetCurrency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          description: |
+            Optional ISO 4217 currency code for FX conversion. Defaults to the
+            card ledger currency when omitted.
+      responses:
+        '200':
+          description: Available balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ExchangeRateNotFound'
 
   /api/cards/{cardNumber}/transactions:
     get:
@@ -135,40 +171,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionDetail'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/ExchangeRateNotFound'
-
-  /api/cards/{cardNumber}/balance:
-    get:
-      tags: [Balance]
-      operationId: getAvailableBalance
-      summary: Get available balance
-      description: |
-        Returns ledger-stored available balance in the card's ledger currency.
-        When targetCurrency is omitted, no FX conversion is applied.
-        When targetCurrency is provided and differs from the ledger currency,
-        also returns convertedBalance and convertedCurrency using the latest
-        cached Treasury exchange rate.
-      parameters:
-        - $ref: '#/components/parameters/CardNumber'
-        - name: targetCurrency
-          in: query
-          required: false
-          schema:
-            type: string
-            pattern: '^[A-Z]{3}$'
-          description: |
-            Optional ISO 4217 currency code for FX conversion. Defaults to the
-            card ledger currency when omitted.
-      responses:
-        '200':
-          description: Available balance
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BalanceResponse'
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
