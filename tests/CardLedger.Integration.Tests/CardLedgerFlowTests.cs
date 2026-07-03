@@ -119,6 +119,51 @@ public sealed class CardLedgerFlowTests : IAsyncLifetime
         Assert.Equal(900m, ParseDecimal(bgnBalanceBody.AvailableBalance));
         Assert.Equal(774m, ParseDecimal(bgnBalanceBody.ConvertedBalance!));
         Assert.Equal("BGN", bgnBalanceBody.ConvertedCurrency);
+
+        var audPurchaseResponse = await _client.PostAsJsonAsync("/api/cards/transactions", new
+        {
+            cardNumber = issueBody.CardNumber,
+            expiryDate = issueBody.ExpiryDate,
+            cvv = issueBody.Cvv,
+            amount = "50.00",
+            currency = "AUD",
+            description = "Integration test AUD purchase"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, audPurchaseResponse.StatusCode);
+
+        var usdTxListResponse = await _client.GetAsync(
+            $"/api/cards/{issueBody.CardNumber}/transactions?targetCurrency=USD");
+
+        Assert.Equal(HttpStatusCode.OK, usdTxListResponse.StatusCode);
+        var usdTxList = await usdTxListResponse.Content.ReadFromJsonAsync<List<TransactionPayload>>(JsonOptions);
+        Assert.NotNull(usdTxList);
+        var usdPurchase = Assert.Single(usdTxList!, tx => tx.Currency == "USD");
+        Assert.Equal(100m, ParseDecimal(usdPurchase.Amount));
+        Assert.Null(usdPurchase.ConvertedAmount);
+        Assert.Null(usdPurchase.RateUsed);
+
+        var bgnTxListResponse = await _client.GetAsync(
+            $"/api/cards/{issueBody.CardNumber}/transactions?targetCurrency=BGN");
+
+        Assert.Equal(HttpStatusCode.OK, bgnTxListResponse.StatusCode);
+        var bgnTxList = await bgnTxListResponse.Content.ReadFromJsonAsync<List<TransactionPayload>>(JsonOptions);
+        Assert.NotNull(bgnTxList);
+        Assert.Equal(2, bgnTxList!.Count);
+
+        var usdToBgn = Assert.Single(bgnTxList, tx => tx.Currency == "USD");
+        Assert.Equal(100m, ParseDecimal(usdToBgn.Amount));
+        Assert.Equal(86m, ParseDecimal(usdToBgn.ConvertedAmount!));
+        Assert.Equal("BGN", usdToBgn.ConvertedCurrency);
+        Assert.Equal("0.86", usdToBgn.RateUsed);
+        Assert.Equal(new DateOnly(2026, 1, 15), usdToBgn.RateDate);
+
+        var audToBgn = Assert.Single(bgnTxList, tx => tx.Currency == "AUD");
+        Assert.Equal(50m, ParseDecimal(audToBgn.Amount));
+        Assert.Equal(29.6143m, ParseDecimal(audToBgn.ConvertedAmount!));
+        Assert.Equal("BGN", audToBgn.ConvertedCurrency);
+        Assert.Equal("0.592286", audToBgn.RateUsed);
+        Assert.Equal(new DateOnly(2026, 1, 15), audToBgn.RateDate);
     }
 
     private static decimal ParseDecimal(string value) =>
@@ -135,6 +180,17 @@ public sealed class CardLedgerFlowTests : IAsyncLifetime
         string AvailableBalance,
         string Currency,
         string? ConvertedBalance = null,
+        string? ConvertedCurrency = null,
+        string? RateUsed = null,
+        DateOnly? RateDate = null);
+
+    private sealed record TransactionPayload(
+        Guid Id,
+        string Description,
+        DateTimeOffset TransactionDate,
+        string Amount,
+        string Currency,
+        string? ConvertedAmount = null,
         string? ConvertedCurrency = null,
         string? RateUsed = null,
         DateOnly? RateDate = null);

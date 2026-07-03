@@ -238,6 +238,6 @@ public static class TransactionEndpoints
             dto.Currency,
             dto.ConvertedAmount is null ? null : CardEndpoints.FormatDecimal(dto.ConvertedAmount.Value),
             dto.ConvertedCurrency,
-            dto.RateUsed is null ? null : CardEndpoints.FormatDecimal(dto.RateUsed.Value),
+            dto.RateUsed is null ? null : CardEndpoints.FormatRate(dto.RateUsed.Value),
             dto.RateDate);
 }

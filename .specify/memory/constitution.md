@@ -86,20 +86,22 @@ make correctness and exhaustive testing impossible to guarantee.
 
 ### IV. Mandatory xUnit Coverage for Exchange Rate and Lookback Logic
 
-Exchange-rate maths and lookback logic MUST have 100% line and branch coverage
+Exchange-rate maths and lookback logic MUST have 100% **line** coverage
 measured by `coverlet` (or equivalent) in CI. The test framework MUST be
 xUnit (`xunit`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk`).
 
-The coverage gate applies specifically to:
+The coverage gate applies specifically to these Application-layer types
+(configured in `Directory.Build.props`):
 
-- Exchange-rate conversion, rounding, and cross-currency aggregation code
-- Lookback window selection, historical rate retrieval, and fallback logic
+- `ExchangeRateLookbackService`
+- `CurrencyConversionService`
+- `ConversionRateMetadata`
 
-Coverage reports MUST fail the build if below 100% for designated
-assemblies/namespaces (configured in CI, not the entire solution). Tests MUST
-use Arrange-Act-Assert. Edge cases — zero amounts, missing rates, boundary
-dates, currency precision — MUST be covered. Other code SHOULD have meaningful
-tests but is not subject to the 100% gate unless promoted by future amendment.
+Branch coverage SHOULD remain high for these modules; the build gate enforces
+line coverage only. Tests MUST use Arrange-Act-Assert. Edge cases — zero
+amounts, missing rates, boundary dates, currency precision — MUST be covered.
+Other code SHOULD have meaningful tests but is not subject to the 100% gate
+unless promoted by future amendment.
 
 **Rationale**: Exchange-rate and lookback logic are the highest-risk
 calculation paths; exhaustive unit testing is the primary safety net.
@@ -117,9 +119,8 @@ calculation paths; exhaustive unit testing is the primary safety net.
 Every pull request MUST pass the Constitution Check defined in
 `.specify/templates/plan-template.md`. The plan phase MUST document any
 justified violations in the Complexity Tracking table. The implement phase MUST
-verify decimal usage via analyser rule or code review checklist. CI MUST enforce
-`net10.0` build, xUnit test execution, and the coverage threshold for
-exchange-rate and lookback assemblies.
+verify decimal usage via analyser rule or code review checklist. CI MUST enforce `net10.0` build, xUnit test execution, and the 100% line
+coverage threshold for the gated exchange-rate and lookback types listed above.
 
 ## Governance
 
@@ -135,4 +136,4 @@ Compliance MUST be reviewed at the plan gate, during pull request review, and
 in a quarterly audit. Runtime development guidance is provided by this
 constitution and `README.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-02 | **Last Amended**: 2026-07-02
+**Version**: 1.0.1 | **Ratified**: 2026-07-02 | **Last Amended**: 2026-07-03

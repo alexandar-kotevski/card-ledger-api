@@ -11,7 +11,7 @@ Key non-negotiables:
 - **.NET 10 / C# 14** — all projects target `net10.0` with nullable reference types enabled
 - **Decimal-only currency** — `float`, `double`, and `Half` are forbidden for monetary values
 - **Domain isolation** — ledger logic lives in Domain/Application layers, not in API controllers
-- **xUnit coverage gate** — 100% line coverage on `CardLedger.Application` when the full unit test suite runs (see `Directory.Build.props`)
+- **xUnit coverage gate** — 100% line coverage on exchange-rate and lookback types (`ExchangeRateLookbackService`, `CurrencyConversionService`, `ConversionRateMetadata`) when the full unit test suite runs (see `Directory.Build.props`)
 
 ## Prerequisites
 

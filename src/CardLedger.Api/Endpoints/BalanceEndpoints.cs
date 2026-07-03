@@ -62,7 +62,7 @@ public static class BalanceEndpoints
             response.Currency,
             response.ConvertedBalance is null ? null : CardEndpoints.FormatDecimal(response.ConvertedBalance.Value),
             response.ConvertedCurrency,
-            response.RateUsed is null ? null : CardEndpoints.FormatDecimal(response.RateUsed.Value),
+            response.RateUsed is null ? null : CardEndpoints.FormatRate(response.RateUsed.Value),
             response.RateDate));
     }
 

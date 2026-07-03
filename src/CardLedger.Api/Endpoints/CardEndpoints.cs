@@ -81,4 +81,7 @@ public static class CardEndpoints
 
     internal static string FormatDecimal(decimal value) =>
         value.ToString("0.####", CultureInfo.InvariantCulture);
+
+    internal static string FormatRate(decimal value) =>
+        value.ToString("0.########", CultureInfo.InvariantCulture);
 }
