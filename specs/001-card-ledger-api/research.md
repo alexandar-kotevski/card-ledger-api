@@ -22,13 +22,13 @@ Phase 0 research resolving technical unknowns for implementation planning.
 
 **URL**: `https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange`
 
-**Fields used**: `country_currency_desc`, `exchange_rate`, `record_date`, `effective_date`
+**Fields used**: `country_currency_desc`, `exchange_rate`, `effective_date`
 
 **Example request**:
 ```
-GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
-    &filter=record_date:gte:2025-01-01
-    &sort=-record_date
+GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,effective_date
+    &filter=effective_date:gte:2025-01-01
+    &sort=-effective_date
     &page[size]=1000
 ```
 
@@ -48,15 +48,15 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 
 ## Rate Selection Rules
 
-**Decision**: Use `effective_date` as the lookup date for all rate queries; retain `record_date` for Treasury sync filtering and audit.
+**Decision**: Use `effective_date` as the lookup date for all rate queries and Treasury sync filtering.
 
-**Rationale**: Treasury may publish multiple effective periods under one `record_date` (e.g. Israel-Shekel with effective dates 2026-03-31 and 2026-05-29 on record_date 2026-03-31). Lookback must key off when the rate applies, not when it was filed.
+**Rationale**: Treasury may publish multiple effective periods under one publication batch (e.g. Israel-Shekel with effective dates 2026-03-31 and 2026-05-29). Lookback must key off when the rate applies, not when it was filed.
 
 ### Transaction FX (historical lookback)
 
 - Window: inclusive 6 calendar months `[transactionDate - 6 months, transactionDate]` on **`effective_date`**
 - Selection: most recent `effective_date` on or before the transaction date within the window
-- API `rateDate` response field reflects **`effective_date`**
+- API `rateUsed` response field is the **effective rate** from source to target currency (`convertedAmount / amount`); API `rateDate` reflects the **`effective_date` of the target currency rate** when converting to a non-USD currency, or the source currency rate when converting to USD
 - Failure: `ExchangeRateNotFoundException` with card, transaction, currency, and date context
 
 ### Balance FX (latest rate)
@@ -70,8 +70,8 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 
 ### Treasury sync storage
 
-- Fetch filter: `record_date:gte:{windowStart}` (captures backfills under older publication dates)
-- Upsert key: `(CurrencyCode, EffectiveDate)` — multiple rows per `record_date` allowed
+- Fetch filter: `effective_date:gte:{windowStart}` (aligns sync with FX lookback)
+- Upsert key: `(CurrencyCode, EffectiveDate)`
 
 ## Treasury Rate Sync Service
 
@@ -79,7 +79,7 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 
 ### Startup bootstrap
 
-- Fetches lookback window: `record_date:gte:max(cutoff, UtcToday - 6 months)`
+- Fetches lookback window: `effective_date:gte:max(cutoff, UtcToday - 6 months)`
 - Runs **before** API accepts traffic (blocking bootstrap)
 - Paginated fetch (Treasury `page[size]` + `page[number]`)
 
@@ -88,14 +88,14 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 ### Daily schedule
 
 - Fires at **00:00 UTC** (configurable `TreasurySync:DailyRunTimeUtc`, default `"00:00:00"`)
-- **Full-window reconciliation**: `record_date:gte:max(cutoff, UtcToday - 6 months)` — same window as bootstrap; catches late Treasury backfills
+- **Full-window reconciliation**: `effective_date:gte:max(cutoff, UtcToday - 6 months)` — same window as bootstrap
 - No separate yesterday-only incremental pass
 
 ### Rate retention
 
 - **Append-only historical cache**
 - New `(CurrencyCode, EffectiveDate)` → INSERT new row
-- Existing effective date re-synced → UPSERT (update rate and `record_date` in place)
+- Existing effective date re-synced → UPSERT (update rate in place)
 - Rows **never deleted**
 - Over time, table grows beyond 6 months via daily appends
 

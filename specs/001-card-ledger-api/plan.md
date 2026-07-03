@@ -121,13 +121,13 @@ Solution uses `CardLedger.slnx` (not `.sln`).
 | POST | `/api/cards/transactions` | Purchase |
 | GET | `/api/cards/{cardNumber}/transactions` | List transactions (optional FX) |
 | GET | `/api/cards/{cardNumber}/transactions/{guid}` | Single transaction (optional FX) |
-| GET | `/api/cards/{cardNumber}/balance` | Available balance in target currency |
+| GET | `/api/cards/{cardNumber}/balance` | Ledger balance; optional `?targetCurrency=` adds convertedBalance/convertedCurrency |
 
 ## Treasury Rate Sync
 
-- **Startup**: Blocking bootstrap fetches last 6 calendar months (`record_date:gte:{UtcToday - 6 months}`) before API accepts traffic
-- **Daily**: 00:00 UTC incremental sync (`record_date:gte:{yesterday}`)
-- **Retention**: Append-only — new `record_date` inserts row; same date upserts; rows never deleted
+- **Startup**: Blocking bootstrap fetches `effective_date:gte:max(cutoff, UtcToday - 6 months)` before API accepts traffic
+- **Daily**: 00:00 UTC full-window reconciliation using the same `effective_date` filter
+- **Retention**: Append-only — upsert key is `(CurrencyCode, EffectiveDate)`; rows never deleted
 
 ## Docker Deployment
 

@@ -47,7 +47,8 @@ public sealed class CurrencyConversionService
             normalizedTarget,
             normalizedSource == "USD" ? null : sourceRate.Rate,
             normalizedTarget == "USD" ? null : targetRate.Rate,
-            rateDate);
+            rateDate,
+            ConversionRateMetadata.ResolveAppliedRate(amount, converted));
     }
 
     public async Task<ConversionResult> ConvertUsingHistoricalRatesAsync(
@@ -104,7 +105,8 @@ public sealed class CurrencyConversionService
             normalizedTarget,
             normalizedSource == "USD" ? null : sourceRate.Rate,
             normalizedTarget == "USD" ? null : targetRate.Rate,
-            rateDate);
+            rateDate,
+            ConversionRateMetadata.ResolveAppliedRate(amount, converted));
     }
 
     public static decimal ConvertViaUsd(
@@ -135,8 +137,7 @@ public sealed class CurrencyConversionService
                 CurrencyCode = "USD",
                 CountryCurrencyDesc = "United States-Dollar",
                 Rate = 1m,
-                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                RecordDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow)
             };
         }
 
@@ -175,8 +176,7 @@ public sealed class CurrencyConversionService
                 CurrencyCode = "USD",
                 CountryCurrencyDesc = "United States-Dollar",
                 Rate = 1m,
-                EffectiveDate = transactionDate,
-                RecordDate = transactionDate
+                EffectiveDate = transactionDate
             };
         }
 

@@ -38,7 +38,6 @@ erDiagram
         string CurrencyCode
         decimal Rate
         date EffectiveDate
-        date RecordDate
     }
 ```
 
@@ -105,15 +104,13 @@ Cached Treasury reporting rates. Append-only historical cache.
 | `CountryCurrencyDesc` | `varchar(100)` | NOT NULL | Treasury label (e.g. `Euro-Euro`) |
 | `CurrencyCode` | `varchar(3)` | NOT NULL | Mapped ISO 4217 code |
 | `Rate` | `numeric(18,8)` | NOT NULL | Foreign currency units per 1 USD (Treasury convention) |
-| `EffectiveDate` | `date` | NOT NULL | When the rate applies (lookback key) |
-| `RecordDate` | `date` | NOT NULL | Treasury publication date (sync filter / audit) |
+| `EffectiveDate` | `date` | NOT NULL | When the rate applies (lookback key and sync filter) |
 
 **Indexes**:
 - UNIQUE (`CurrencyCode`, `EffectiveDate`)
-- INDEX (`RecordDate`) for sync queries
 
 **Sync behaviour**:
-- Startup and daily: fetch `record_date >= windowStart`, upsert by `(CurrencyCode, EffectiveDate)`
+- Startup and daily: fetch `effective_date >= windowStart`, upsert by `(CurrencyCode, EffectiveDate)`
 - Daily full-window reconciliation (not yesterday-only incremental)
 - Rows never deleted
 

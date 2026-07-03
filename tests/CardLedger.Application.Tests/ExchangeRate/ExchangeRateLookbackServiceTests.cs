@@ -64,7 +64,6 @@ public class ExchangeRateLookbackServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = transactionDateOnly.AddDays(-10),
-                RecordDate = transactionDateOnly.AddDays(-10)
             });
 
         _repository.GetMostRecentInWindowAsync("GBP", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
@@ -74,7 +73,6 @@ public class ExchangeRateLookbackServiceTests
                 CountryCurrencyDesc = "United Kingdom-Pound",
                 Rate = 0.80m,
                 EffectiveDate = transactionDateOnly.AddDays(-5),
-                RecordDate = transactionDateOnly.AddDays(-5)
             });
 
         var result = await _sut.ConvertForTransactionAsync(
@@ -88,6 +86,7 @@ public class ExchangeRateLookbackServiceTests
         Assert.Equal("GBP", result.TargetCurrency);
         Assert.Equal(88.8889m, result.ConvertedAmount);
         Assert.Equal(0.80m, result.TargetRate);
+        Assert.Equal(0.888889m, result.AppliedRate);
         Assert.Equal(transactionDateOnly.AddDays(-5), result.RateDate);
     }
 
@@ -105,7 +104,6 @@ public class ExchangeRateLookbackServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = boundaryDate,
-                RecordDate = boundaryDate
             });
 
         var result = await _sut.ConvertForTransactionAsync(
@@ -177,7 +175,6 @@ public class ExchangeRateLookbackServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = new DateOnly(2026, 6, 30),
-                RecordDate = new DateOnly(2026, 6, 30)
             });
 
         _repository.GetLatestRateAsync("GBP", Arg.Any<CancellationToken>())
@@ -187,7 +184,6 @@ public class ExchangeRateLookbackServiceTests
                 CountryCurrencyDesc = "United Kingdom-Pound",
                 Rate = 0.80m,
                 EffectiveDate = new DateOnly(2026, 6, 29),
-                RecordDate = new DateOnly(2026, 6, 29)
             });
 
         var result = await _sut.ConvertBalanceUsingLatestRateAsync(
@@ -197,7 +193,7 @@ public class ExchangeRateLookbackServiceTests
             "4111111111111111");
 
         Assert.Equal(80m, result.ConvertedAmount);
-        Assert.Equal(new DateOnly(2026, 6, 30), result.RateDate);
+        Assert.Equal(new DateOnly(2026, 6, 29), result.RateDate);
     }
 
     [Fact]
@@ -218,7 +214,6 @@ public class ExchangeRateLookbackServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = new DateOnly(2026, 6, 30),
-                RecordDate = new DateOnly(2026, 6, 30)
             });
 
         var result = await _sut.ConvertBalanceUsingLatestRateAsync(
@@ -238,7 +233,6 @@ public class ExchangeRateLookbackServiceTests
         var transactionDateOnly = DateOnly.FromDateTime(transactionDate.UtcDateTime);
         var windowStart = transactionDateOnly.AddMonths(-6);
         var effectiveDate = new DateOnly(2026, 5, 29);
-        var recordDate = new DateOnly(2026, 3, 31);
 
         _repository.GetMostRecentInWindowAsync("ILS", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
             .Returns(new ExchangeRateEntity
@@ -246,8 +240,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "ILS",
                 CountryCurrencyDesc = "Israel-Shekel",
                 Rate = 2.807m,
-                EffectiveDate = effectiveDate,
-                RecordDate = recordDate
+                EffectiveDate = effectiveDate
             });
 
         var result = await _sut.ConvertForTransactionAsync(
@@ -259,6 +252,83 @@ public class ExchangeRateLookbackServiceTests
             Guid.NewGuid());
 
         Assert.Equal(effectiveDate, result.RateDate);
+    }
+
+    [Fact]
+    public async Task ConvertForTransactionAsync_ReportsTargetEffectiveDateWhenSourceIsNewer()
+    {
+        var transactionDate = new DateTimeOffset(2026, 7, 2, 12, 0, 0, TimeSpan.Zero);
+        var transactionDateOnly = DateOnly.FromDateTime(transactionDate.UtcDateTime);
+        var windowStart = transactionDateOnly.AddMonths(-6);
+        var usdEffectiveDate = new DateOnly(2026, 3, 31);
+        var bgnEffectiveDate = new DateOnly(2026, 1, 15);
+
+        _repository.GetMostRecentInWindowAsync("USD", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
+            .Returns(new ExchangeRateEntity
+            {
+                CurrencyCode = "USD",
+                CountryCurrencyDesc = "United States-Dollar",
+                Rate = 1m,
+                EffectiveDate = usdEffectiveDate
+            });
+
+        _repository.GetMostRecentInWindowAsync("BGN", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
+            .Returns(new ExchangeRateEntity
+            {
+                CurrencyCode = "BGN",
+                CountryCurrencyDesc = "Bulgaria-Lev New",
+                Rate = 0.86m,
+                EffectiveDate = bgnEffectiveDate
+            });
+
+        var result = await _sut.ConvertForTransactionAsync(
+            100m,
+            "USD",
+            "BGN",
+            transactionDate,
+            "4111111111111111",
+            Guid.NewGuid());
+
+        Assert.Equal(bgnEffectiveDate, result.RateDate);
+    }
+
+    [Fact]
+    public async Task ConvertForTransactionAsync_ReportsAppliedCrossRateForAudToBgn()
+    {
+        var transactionDate = new DateTimeOffset(2026, 7, 3, 5, 12, 56, TimeSpan.Zero);
+        var transactionDateOnly = DateOnly.FromDateTime(transactionDate.UtcDateTime);
+        var windowStart = transactionDateOnly.AddMonths(-6);
+
+        _repository.GetMostRecentInWindowAsync("AUD", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
+            .Returns(new ExchangeRateEntity
+            {
+                CurrencyCode = "AUD",
+                CountryCurrencyDesc = "Australia-Dollar",
+                Rate = 1.4520m,
+                EffectiveDate = new DateOnly(2026, 3, 31)
+            });
+
+        _repository.GetMostRecentInWindowAsync("BGN", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
+            .Returns(new ExchangeRateEntity
+            {
+                CurrencyCode = "BGN",
+                CountryCurrencyDesc = "Bulgaria-Lev New",
+                Rate = 0.86m,
+                EffectiveDate = new DateOnly(2026, 1, 15)
+            });
+
+        var result = await _sut.ConvertForTransactionAsync(
+            50m,
+            "AUD",
+            "BGN",
+            transactionDate,
+            "4111111111111111",
+            Guid.NewGuid());
+
+        Assert.Equal(29.6143m, result.ConvertedAmount);
+        Assert.Equal(0.592286m, result.AppliedRate);
+        Assert.Equal(0.86m, result.TargetRate);
+        Assert.NotEqual(result.TargetRate, result.AppliedRate);
     }
 
     [Fact]

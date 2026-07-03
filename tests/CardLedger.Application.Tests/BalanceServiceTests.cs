@@ -49,7 +49,6 @@ public class BalanceServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = new DateOnly(2026, 6, 30),
-                RecordDate = new DateOnly(2026, 6, 30)
             });
 
         var result = await _sut.GetBalanceAsync(pan, "EUR");

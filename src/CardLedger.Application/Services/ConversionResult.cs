@@ -5,4 +5,5 @@ public sealed record ConversionResult(
     string TargetCurrency,
     decimal? SourceRate,
     decimal? TargetRate,
-    DateOnly? RateDate);
+    DateOnly? RateDate,
+    decimal? AppliedRate = null);

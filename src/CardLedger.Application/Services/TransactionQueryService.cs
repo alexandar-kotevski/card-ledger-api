@@ -68,7 +68,8 @@ public sealed class TransactionQueryService
         string? targetCurrency,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(targetCurrency))
+        if (string.IsNullOrWhiteSpace(targetCurrency) ||
+            targetCurrency.Equals(transaction.Currency, StringComparison.OrdinalIgnoreCase))
         {
             return new TransactionDetailDto(
                 transaction.Id,
@@ -97,7 +98,7 @@ public sealed class TransactionQueryService
             transaction.Currency,
             conversion.ConvertedAmount,
             conversion.TargetCurrency,
-            conversion.TargetRate ?? conversion.SourceRate,
+            conversion.AppliedRate,
             conversion.RateDate);
     }
 

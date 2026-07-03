@@ -79,9 +79,9 @@ paths:
       operationId: listTransactions
       summary: List transactions for a card
       description: |
-        Returns all transactions for the card. When targetCurrency is provided,
-        each amount is converted using Treasury rates within a 6-month lookback
-        window on or before the transaction date.
+        Returns all transactions for the card. When targetCurrency is provided
+        and differs from a transaction's currency, converted fields use Treasury
+        rates within a 6-month lookback window on or before the transaction date.
       parameters:
         - $ref: '#/components/parameters/CardNumber'
         - name: targetCurrency
@@ -111,8 +111,9 @@ paths:
       operationId: getTransaction
       summary: Get a single transaction
       description: |
-        Returns one transaction by identifier. When targetCurrency is provided,
-        applies the same 6-month Treasury lookback conversion as the list endpoint.
+        Returns one transaction by identifier. When targetCurrency is provided
+        and differs from the transaction currency, applies the same 6-month
+        Treasury lookback conversion as the list endpoint.
       parameters:
         - $ref: '#/components/parameters/CardNumber'
         - name: transactionId
@@ -286,16 +287,16 @@ components:
           description: Original transaction currency
         convertedAmount:
           type: string
-          description: Present when targetCurrency query param was supplied
+          description: Present when targetCurrency differs from transaction currency
         convertedCurrency:
           type: string
         rateUsed:
           type: string
-          description: Exchange rate applied (decimal string)
+          description: Effective conversion rate from original amount currency to converted currency (decimal string)
         rateDate:
           type: string
           format: date
-          description: Treasury effective_date of the rate used
+          description: Treasury effective_date of the target currency rate (or source currency when converting to USD)
 
     BalanceResponse:
       type: object
@@ -315,11 +316,11 @@ components:
           type: string
         rateUsed:
           type: string
-          description: Exchange rate applied (decimal string)
+          description: Effective conversion rate from original amount currency to converted currency (decimal string)
         rateDate:
           type: string
           format: date
-          description: Treasury effective_date of the rate used
+          description: Treasury effective_date of the target currency rate (or source currency when converting to USD)
 
     ProblemDetails:
       type: object

@@ -39,8 +39,7 @@ internal sealed class IntegrationTestCurrencyBootstrap : IHostedService
                     CountryCurrencyDesc = "United States-Dollar",
                     CurrencyCode = "USD",
                     Rate = 1m,
-                    EffectiveDate = seedDate,
-                    RecordDate = seedDate
+                    EffectiveDate = seedDate
                 },
                 cancellationToken).ConfigureAwait(false);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -54,8 +53,21 @@ internal sealed class IntegrationTestCurrencyBootstrap : IHostedService
                     CountryCurrencyDesc = "Euro-Euro",
                     CurrencyCode = "EUR",
                     Rate = 0.90m,
-                    EffectiveDate = seedDate,
-                    RecordDate = seedDate
+                    EffectiveDate = seedDate
+                },
+                cancellationToken).ConfigureAwait(false);
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!await db.ExchangeRates.AnyAsync(x => x.CurrencyCode == "BGN", cancellationToken).ConfigureAwait(false))
+        {
+            await db.ExchangeRates.AddAsync(
+                new ExchangeRate
+                {
+                    CountryCurrencyDesc = "Bulgaria-Lev New",
+                    CurrencyCode = "BGN",
+                    Rate = 0.86m,
+                    EffectiveDate = new DateOnly(2026, 1, 15)
                 },
                 cancellationToken).ConfigureAwait(false);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

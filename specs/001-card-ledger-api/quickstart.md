@@ -69,7 +69,7 @@ curl "http://localhost:8080/api/cards/<PAN>/transactions?targetCurrency=EUR"
 
 **Expected (200)**:
 - Array with at least one transaction from Scenario B
-- `convertedAmount`, `convertedCurrency`, `rateUsed`, `rateDate` populated when FX applied
+- `convertedAmount`, `convertedCurrency`, `rateUsed`, `rateDate` populated when FX applied (omitted when `targetCurrency` matches transaction currency)
 
 ## Scenario D — Single Transaction with FX
 

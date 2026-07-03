@@ -14,8 +14,6 @@ internal sealed class ExchangeRateConfiguration : IEntityTypeConfiguration<Excha
         builder.Property(x => x.CurrencyCode).HasMaxLength(3).IsRequired();
         builder.Property(x => x.Rate).HasPrecision(18, 8);
         builder.Property(x => x.EffectiveDate).IsRequired();
-        builder.Property(x => x.RecordDate).IsRequired();
         builder.HasIndex(x => new { x.CurrencyCode, x.EffectiveDate }).IsUnique();
-        builder.HasIndex(x => x.RecordDate);
     }
 }

@@ -196,8 +196,8 @@ $page = 1
 $descriptors = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 do {
     $uri = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange" +
-        "?fields=country_currency_desc,record_date" +
-        "&filter=record_date:gte:$FromDate" +
+        "?fields=country_currency_desc,effective_date" +
+        "&filter=effective_date:gte:$FromDate" +
         "&sort=country_currency_desc" +
         "&page[size]=1000" +
         "&page[number]=$page"

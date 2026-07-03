@@ -108,6 +108,17 @@ public sealed class CardLedgerFlowTests : IAsyncLifetime
         Assert.Equal("EUR", fxBalanceBody.ConvertedCurrency);
         Assert.NotNull(fxBalanceBody.RateUsed);
         Assert.NotNull(fxBalanceBody.RateDate);
+
+        var bgnBalanceResponse = await _client.GetAsync(
+            $"/api/cards/{issueBody.CardNumber}/balance?targetCurrency=BGN");
+
+        Assert.Equal(HttpStatusCode.OK, bgnBalanceResponse.StatusCode);
+        var bgnBalanceBody = await bgnBalanceResponse.Content.ReadFromJsonAsync<BalancePayload>(JsonOptions);
+        Assert.NotNull(bgnBalanceBody);
+        Assert.Equal("USD", bgnBalanceBody!.Currency);
+        Assert.Equal(900m, ParseDecimal(bgnBalanceBody.AvailableBalance));
+        Assert.Equal(774m, ParseDecimal(bgnBalanceBody.ConvertedBalance!));
+        Assert.Equal("BGN", bgnBalanceBody.ConvertedCurrency);
     }
 
     private static decimal ParseDecimal(string value) =>

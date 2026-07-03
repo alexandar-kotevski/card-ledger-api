@@ -28,8 +28,9 @@ public static class TransactionEndpoints
             .WithName("ListTransactions")
             .WithSummary("List transactions for a card")
             .WithDescription(
-                "Returns all transactions for the card. When targetCurrency is provided, " +
-                "each amount is converted using Treasury rates within a 6-month lookback window.")
+                "Returns all transactions for the card. When targetCurrency is provided and " +
+                "differs from each transaction's currency, converted fields use Treasury rates " +
+                "within a 6-month lookback window.")
             .WithTags("Transactions")
             .Produces<IReadOnlyList<TransactionDetailApiResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
@@ -39,8 +40,9 @@ public static class TransactionEndpoints
             .WithName("GetTransaction")
             .WithSummary("Get a single transaction")
             .WithDescription(
-                "Returns one transaction by identifier with optional FX conversion " +
-                "using the same 6-month Treasury lookback as the list endpoint.")
+                "Returns one transaction by identifier. When targetCurrency is provided and " +
+                "differs from the transaction currency, converted fields use the same 6-month " +
+                "Treasury lookback as the list endpoint.")
             .WithTags("Transactions")
             .Produces<TransactionDetailApiResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)

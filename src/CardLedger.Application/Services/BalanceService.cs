@@ -66,7 +66,7 @@ public sealed class BalanceService
             ledger.Currency,
             conversion.ConvertedAmount,
             conversion.TargetCurrency,
-            conversion.TargetRate ?? conversion.SourceRate,
+            conversion.AppliedRate,
             conversion.RateDate);
     }
 }

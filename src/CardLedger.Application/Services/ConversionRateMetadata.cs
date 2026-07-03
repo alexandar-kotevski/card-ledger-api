@@ -2,6 +2,16 @@ namespace CardLedger.Application.Services;
 
 internal static class ConversionRateMetadata
 {
+    public static decimal? ResolveAppliedRate(decimal sourceAmount, decimal convertedAmount)
+    {
+        if (sourceAmount == 0)
+        {
+            return null;
+        }
+
+        return Math.Round(convertedAmount / sourceAmount, 8, MidpointRounding.ToEven);
+    }
+
     public static DateOnly? ResolveRateDate(
         string sourceCurrency,
         string targetCurrency,
@@ -13,26 +23,11 @@ internal static class ConversionRateMetadata
             return null;
         }
 
-        if (sourceCurrency == "USD")
-        {
-            return targetRateDate;
-        }
-
         if (targetCurrency == "USD")
         {
             return sourceRateDate;
         }
 
-        if (sourceRateDate is null)
-        {
-            return targetRateDate;
-        }
-
-        if (targetRateDate is null)
-        {
-            return sourceRateDate;
-        }
-
-        return sourceRateDate > targetRateDate ? sourceRateDate : targetRateDate;
+        return targetRateDate;
     }
 }

@@ -76,7 +76,8 @@ public sealed class ExchangeRateLookbackService
             normalizedTarget,
             normalizedSource == "USD" ? null : sourceRate.Rate,
             normalizedTarget == "USD" ? null : targetRate.Rate,
-            rateDate);
+            rateDate,
+            ConversionRateMetadata.ResolveAppliedRate(amount, converted));
     }
 
     public async Task<ConversionResult> ConvertBalanceUsingLatestRateAsync(
@@ -126,7 +127,8 @@ public sealed class ExchangeRateLookbackService
             normalizedTarget,
             normalizedSource == "USD" ? null : sourceRate.Rate,
             normalizedTarget == "USD" ? null : targetRate.Rate,
-            rateDate);
+            rateDate,
+            ConversionRateMetadata.ResolveAppliedRate(amount, converted));
     }
 
     private async Task<Domain.Entities.ExchangeRate> GetRateInWindowOrThrowAsync(
@@ -147,8 +149,7 @@ public sealed class ExchangeRateLookbackService
                 CurrencyCode = "USD",
                 CountryCurrencyDesc = "United States-Dollar",
                 Rate = 1m,
-                EffectiveDate = transactionDate,
-                RecordDate = transactionDate
+                EffectiveDate = transactionDate
             };
         }
 
@@ -183,8 +184,7 @@ public sealed class ExchangeRateLookbackService
                 CurrencyCode = "USD",
                 CountryCurrencyDesc = "United States-Dollar",
                 Rate = 1m,
-                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                RecordDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow)
             };
         }
 

@@ -11,7 +11,7 @@ Key non-negotiables:
 - **.NET 10 / C# 14** — all projects target `net10.0` with nullable reference types enabled
 - **Decimal-only currency** — `float`, `double`, and `Half` are forbidden for monetary values
 - **Domain isolation** — ledger logic lives in Domain/Application layers, not in API controllers
-- **xUnit coverage gate** — 100% line and branch coverage required for exchange-rate maths and lookback logic
+- **xUnit coverage gate** — 100% line coverage on `CardLedger.Application` when the full unit test suite runs (see `Directory.Build.props`)
 
 ## Prerequisites
 
@@ -58,8 +58,15 @@ when Docker is unavailable.
 
    Enabled automatically in Development. `dotnet run` opens Scalar in the browser.
 
-On first startup, Treasury sync backfills exchange rates for the last 6 months before
-the API accepts traffic. Set `TreasurySync:Enabled` to `false` to disable sync (used in tests).
+On first startup, Treasury sync backfills exchange rates for the last 6 months (by
+`effective_date`) before the API accepts traffic. Set `TreasurySync:Enabled` to `false`
+to disable sync (used in tests).
+
+### Database migrations
+
+Schema changes use EF Core migrations under `src/CardLedger.Infrastructure/Persistence/Migrations/`.
+Each migration needs both the `.cs` and `.Designer.cs` files (or generate with
+`dotnet ef migrations add`). Migrations run automatically on API startup via `MigrateAsync()`.
 
 ## Docker
 
@@ -110,5 +117,21 @@ POST /api/cards
   "cvv": "123",
   "currency": "USD",
   "creditLimit": "5000.00"
+}
+```
+
+### Example — balance with FX
+
+```json
+GET /api/cards/4111111111111111/balance?targetCurrency=EUR
+
+200 Response:
+{
+  "availableBalance": "4850.00",
+  "currency": "USD",
+  "convertedBalance": "4365.00",
+  "convertedCurrency": "EUR",
+  "rateUsed": "0.9000",
+  "rateDate": "2026-06-30"
 }
 ```

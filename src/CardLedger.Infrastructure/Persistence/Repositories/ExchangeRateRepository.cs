@@ -67,7 +67,6 @@ internal sealed class ExchangeRateRepository : IExchangeRateRepository
                 {
                     pending.Rate = rate.Rate;
                     pending.CountryCurrencyDesc = rate.CountryCurrencyDesc;
-                    pending.RecordDate = rate.RecordDate;
                 }
                 else
                 {
@@ -78,7 +77,6 @@ internal sealed class ExchangeRateRepository : IExchangeRateRepository
             {
                 existing.Rate = rate.Rate;
                 existing.CountryCurrencyDesc = rate.CountryCurrencyDesc;
-                existing.RecordDate = rate.RecordDate;
             }
         }
     }

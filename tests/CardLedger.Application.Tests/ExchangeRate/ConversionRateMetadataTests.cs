@@ -5,6 +5,19 @@ namespace CardLedger.Application.Tests.ExchangeRate;
 public class ConversionRateMetadataTests
 {
     [Fact]
+    public void ResolveAppliedRate_ReturnsConvertedPerSourceUnit()
+    {
+        var result = ConversionRateMetadata.ResolveAppliedRate(50m, 29.5939m);
+        Assert.Equal(0.591878m, result);
+    }
+
+    [Fact]
+    public void ResolveAppliedRate_ReturnsNullForZeroSourceAmount()
+    {
+        Assert.Null(ConversionRateMetadata.ResolveAppliedRate(0m, 10m));
+    }
+
+    [Fact]
     public void ResolveRateDate_ReturnsNullForSameCurrency()
     {
         var result = ConversionRateMetadata.ResolveRateDate("USD", "USD", null, null);
@@ -28,27 +41,20 @@ public class ConversionRateMetadataTests
     }
 
     [Fact]
-    public void ResolveRateDate_ReturnsTargetDateWhenSourceDateNull()
+    public void ResolveRateDate_ReturnsTargetDateWhenBothPresent()
     {
-        var targetDate = new DateOnly(2026, 4, 1);
-        var result = ConversionRateMetadata.ResolveRateDate("EUR", "GBP", null, targetDate);
+        var sourceDate = new DateOnly(2026, 3, 31);
+        var targetDate = new DateOnly(2026, 1, 15);
+        var result = ConversionRateMetadata.ResolveRateDate("USD", "BGN", sourceDate, targetDate);
         Assert.Equal(targetDate, result);
     }
 
     [Fact]
-    public void ResolveRateDate_ReturnsSourceDateWhenTargetDateNull()
-    {
-        var sourceDate = new DateOnly(2026, 3, 1);
-        var result = ConversionRateMetadata.ResolveRateDate("EUR", "GBP", sourceDate, null);
-        Assert.Equal(sourceDate, result);
-    }
-
-    [Fact]
-    public void ResolveRateDate_ReturnsLatestDateWhenBothPresent()
+    public void ResolveRateDate_ReturnsTargetDateForCrossCurrencyConversion()
     {
         var sourceDate = new DateOnly(2026, 6, 10);
         var targetDate = new DateOnly(2026, 6, 5);
         var result = ConversionRateMetadata.ResolveRateDate("EUR", "GBP", sourceDate, targetDate);
-        Assert.Equal(sourceDate, result);
+        Assert.Equal(targetDate, result);
     }
 }

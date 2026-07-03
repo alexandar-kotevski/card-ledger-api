@@ -35,7 +35,6 @@ public class CurrencyConversionServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = new DateOnly(2026, 6, 30),
-                RecordDate = new DateOnly(2026, 6, 30)
             });
 
         var result = await _sut.ConvertUsingLatestRateAsync(90m, "EUR", "USD");
@@ -78,7 +77,6 @@ public class CurrencyConversionServiceTests
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
                 EffectiveDate = transactionDate.AddDays(-1),
-                RecordDate = transactionDate.AddDays(-1)
             });
 
         var result = await _sut.ConvertUsingHistoricalRatesAsync(

@@ -34,9 +34,9 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
         while (pageNumber <= totalPages)
         {
             var url =
-                $"{_options.BaseUrl}?fields=country_currency_desc,exchange_rate,record_date,effective_date" +
-                $"&filter=record_date:gte:{fromDate:yyyy-MM-dd}" +
-                $"&sort=-record_date" +
+                $"{_options.BaseUrl}?fields=country_currency_desc,exchange_rate,effective_date" +
+                $"&filter=effective_date:gte:{fromDate:yyyy-MM-dd}" +
+                $"&sort=-effective_date" +
                 $"&page[size]={_options.PageSize}" +
                 $"&page[number]={pageNumber}";
 
@@ -66,23 +66,13 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
                 }
 
                 if (!DateOnly.TryParseExact(
-                        item.RecordDate,
-                        "yyyy-MM-dd",
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.None,
-                        out var recordDate))
-                {
-                    continue;
-                }
-
-                if (!DateOnly.TryParseExact(
                         item.EffectiveDate,
                         "yyyy-MM-dd",
                         CultureInfo.InvariantCulture,
                         DateTimeStyles.None,
                         out var effectiveDate))
                 {
-                    effectiveDate = recordDate;
+                    continue;
                 }
 
                 results.Add(new ExchangeRate
@@ -90,8 +80,7 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
                     CountryCurrencyDesc = item.CountryCurrencyDesc,
                     CurrencyCode = currencyCode,
                     Rate = rate,
-                    EffectiveDate = effectiveDate,
-                    RecordDate = recordDate
+                    EffectiveDate = effectiveDate
                 });
             }
 
@@ -121,9 +110,6 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
 
         [JsonPropertyName("exchange_rate")]
         public string ExchangeRate { get; set; } = string.Empty;
-
-        [JsonPropertyName("record_date")]
-        public string RecordDate { get; set; } = string.Empty;
 
         [JsonPropertyName("effective_date")]
         public string EffectiveDate { get; set; } = string.Empty;
