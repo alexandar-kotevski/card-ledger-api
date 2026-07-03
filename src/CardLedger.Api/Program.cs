@@ -1,4 +1,5 @@
 using CardLedger.Api.Endpoints;
+using CardLedger.Api.OpenApi;
 using CardLedger.Application;
 using CardLedger.Domain.Exceptions;
 using CardLedger.Infrastructure.DependencyInjection;
@@ -11,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCardLedgerApplication();
 builder.Services.AddCardLedgerInfrastructure(builder.Configuration);
+builder.Services.AddCardLedgerOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<CardLedgerDbContext>();
@@ -69,6 +71,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapHealthChecks("/health");
+app.MapCardLedgerOpenApi();
 
 var cards = app.MapGroup("/api/cards");
 cards.MapCardEndpoints();

@@ -1,4 +1,5 @@
 using System.Globalization;
+using CardLedger.Api.Contracts;
 using CardLedger.Application.DTOs;
 using CardLedger.Application.Services;
 using CardLedger.Domain.ValueObjects;
@@ -11,6 +12,12 @@ public static class TransactionEndpoints
     {
         group.MapPost("/transactions", PurchaseAsync)
             .WithName("CreatePurchase")
+            .WithSummary("Record a purchase")
+            .WithDescription(
+                "Validates card credentials, records a transaction, and debits the card ledger. " +
+                "Cross-currency purchases are converted using the latest Treasury rate.")
+            .WithTags("Transactions")
+            .Accepts<PurchaseApiRequest>("application/json")
             .Produces<PurchaseApiResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
@@ -18,12 +25,22 @@ public static class TransactionEndpoints
 
         group.MapGet("/{cardNumber}/transactions", ListTransactionsAsync)
             .WithName("ListTransactions")
+            .WithSummary("List transactions for a card")
+            .WithDescription(
+                "Returns all transactions for the card. When targetCurrency is provided, " +
+                "each amount is converted using Treasury rates within a 6-month lookback window.")
+            .WithTags("Transactions")
             .Produces<IReadOnlyList<TransactionDetailApiResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         group.MapGet("/{cardNumber}/transactions/{transactionId:guid}", GetTransactionAsync)
             .WithName("GetTransaction")
+            .WithSummary("Get a single transaction")
+            .WithDescription(
+                "Returns one transaction by identifier with optional FX conversion " +
+                "using the same 6-month Treasury lookback as the list endpoint.")
+            .WithTags("Transactions")
             .Produces<TransactionDetailApiResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
@@ -208,29 +225,4 @@ public static class TransactionEndpoints
             dto.ConvertedCurrency,
             dto.RateUsed is null ? null : CardEndpoints.FormatDecimal(dto.RateUsed.Value),
             dto.RateDate);
-
-    private sealed record PurchaseApiRequest(
-        string CardNumber,
-        DateOnly ExpiryDate,
-        string Cvv,
-        string Amount,
-        string Currency,
-        string Description);
-
-    private sealed record PurchaseApiResponse(
-        Guid Id,
-        string Amount,
-        string Currency,
-        string Description);
-
-    private sealed record TransactionDetailApiResponse(
-        Guid Id,
-        string Description,
-        DateTimeOffset TransactionDate,
-        string Amount,
-        string Currency,
-        string? ConvertedAmount,
-        string? ConvertedCurrency,
-        string? RateUsed,
-        DateOnly? RateDate);
 }

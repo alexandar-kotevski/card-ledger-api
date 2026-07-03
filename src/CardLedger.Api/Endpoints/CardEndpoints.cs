@@ -1,4 +1,5 @@
 using System.Globalization;
+using CardLedger.Api.Contracts;
 using CardLedger.Application.DTOs;
 using CardLedger.Application.Services;
 using CardLedger.Domain.ValueObjects;
@@ -11,7 +12,13 @@ public static class CardEndpoints
     {
         group.MapPost("/", IssueCardAsync)
             .WithName("IssueCard")
-            .Produces<IssueCardResponse>(StatusCodes.Status201Created)
+            .WithSummary("Issue a new card")
+            .WithDescription(
+                "Creates a card with generated PAN, expiry (3 years from issue), and CVV. " +
+                "Initialises a ledger record with available balance equal to credit limit.")
+            .WithTags("Cards")
+            .Accepts<IssueCardApiRequest>("application/json")
+            .Produces<IssueCardApiResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
@@ -72,13 +79,4 @@ public static class CardEndpoints
 
     internal static string FormatDecimal(decimal value) =>
         value.ToString("0.####", CultureInfo.InvariantCulture);
-
-    private sealed record IssueCardApiRequest(string CreditLimit, string Currency);
-
-    private sealed record IssueCardApiResponse(
-        string CardNumber,
-        DateOnly ExpiryDate,
-        string Cvv,
-        string Currency,
-        string CreditLimit);
 }

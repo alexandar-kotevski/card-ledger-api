@@ -22,6 +22,7 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=cardledger;Username=cardledger;Password=cardledger"
       TreasurySync__Enabled: "true"
+      OpenApi__Enabled: "true"
     depends_on:
       postgres:
         condition: service_healthy

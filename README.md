@@ -50,7 +50,13 @@ when Docker is unavailable.
    dotnet run --project src/CardLedger.Api/CardLedger.Api.csproj
    ```
 
-4. Health check: `GET http://localhost:5000/health` (port from launch settings)
+4. Health check: `GET http://localhost:5195/health` (port from launch settings)
+
+5. **API documentation:**
+   - Interactive UI (Scalar): `http://localhost:5195/scalar/v1`
+   - OpenAPI JSON: `http://localhost:5195/openapi/v1.json`
+
+   Enabled automatically in Development. `dotnet run` opens Scalar in the browser.
 
 On first startup, Treasury sync backfills exchange rates for the last 6 months before
 the API accepts traffic. Set `TreasurySync:Enabled` to `false` to disable sync (used in tests).
@@ -64,6 +70,14 @@ docker compose up --build
 ```
 
 API endpoints are under `/api/cards`.
+
+**API documentation** (enabled in Docker Compose via `OpenApi__Enabled=true`):
+
+- Scalar UI: `http://localhost:8080/scalar/v1`
+- OpenAPI JSON: `http://localhost:8080/openapi/v1.json`
+
+To disable docs in Docker, set `OpenApi__Enabled=false` on the `api` service. In bare
+Production deployments, docs are off unless you opt in with the same setting.
 
 ## API overview
 

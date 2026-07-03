@@ -1,3 +1,4 @@
+using CardLedger.Api.Contracts;
 using CardLedger.Application.Services;
 using CardLedger.Domain.ValueObjects;
 
@@ -9,6 +10,11 @@ public static class BalanceEndpoints
     {
         group.MapGet("/{cardNumber}/balance", GetBalanceAsync)
             .WithName("GetAvailableBalance")
+            .WithSummary("Get available balance")
+            .WithDescription(
+                "Returns ledger-stored available balance converted to the target currency " +
+                "using the latest cached Treasury exchange rate.")
+            .WithTags("Balance")
             .Produces<BalanceApiResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
@@ -65,10 +71,4 @@ public static class BalanceEndpoints
             return false;
         }
     }
-
-    private sealed record BalanceApiResponse(
-        string AvailableBalance,
-        string Currency,
-        string? RateUsed,
-        DateOnly? RateDate);
 }
