@@ -11,11 +11,16 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
 {
     private readonly HttpClient _httpClient;
     private readonly TreasurySyncOptions _options;
+    private readonly ITreasuryCurrencyRegistry _currencyRegistry;
 
-    public TreasuryRateClient(HttpClient httpClient, IOptions<TreasurySyncOptions> options)
+    public TreasuryRateClient(
+        HttpClient httpClient,
+        IOptions<TreasurySyncOptions> options,
+        ITreasuryCurrencyRegistry currencyRegistry)
     {
         _httpClient = httpClient;
         _options = options.Value;
+        _currencyRegistry = currencyRegistry;
     }
 
     public async Task<IReadOnlyList<ExchangeRate>> FetchRatesAsync(
@@ -29,7 +34,7 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
         while (pageNumber <= totalPages)
         {
             var url =
-                $"{_options.BaseUrl}?fields=country_currency_desc,exchange_rate,record_date" +
+                $"{_options.BaseUrl}?fields=country_currency_desc,exchange_rate,record_date,effective_date" +
                 $"&filter=record_date:gte:{fromDate:yyyy-MM-dd}" +
                 $"&sort=-record_date" +
                 $"&page[size]={_options.PageSize}" +
@@ -46,7 +51,7 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
 
             foreach (var item in response.Data)
             {
-                if (!TreasuryCurrencyMapper.TryMapTreasuryToIso(item.CountryCurrencyDesc, out var currencyCode))
+                if (!_currencyRegistry.TryMapTreasuryToIso(item.CountryCurrencyDesc, out var currencyCode))
                 {
                     continue;
                 }
@@ -70,11 +75,22 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
                     continue;
                 }
 
+                if (!DateOnly.TryParseExact(
+                        item.EffectiveDate,
+                        "yyyy-MM-dd",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out var effectiveDate))
+                {
+                    effectiveDate = recordDate;
+                }
+
                 results.Add(new ExchangeRate
                 {
                     CountryCurrencyDesc = item.CountryCurrencyDesc,
                     CurrencyCode = currencyCode,
                     Rate = rate,
+                    EffectiveDate = effectiveDate,
                     RecordDate = recordDate
                 });
             }
@@ -83,7 +99,10 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
             pageNumber++;
         }
 
-        return results;
+        return results
+            .GroupBy(r => (r.CurrencyCode, r.EffectiveDate))
+            .Select(g => g.Last())
+            .ToList();
     }
 
     private sealed class TreasuryRatesResponse
@@ -105,6 +124,9 @@ internal sealed class TreasuryRateClient : ITreasuryRateClient
 
         [JsonPropertyName("record_date")]
         public string RecordDate { get; set; } = string.Empty;
+
+        [JsonPropertyName("effective_date")]
+        public string EffectiveDate { get; set; } = string.Empty;
     }
 
     private sealed class TreasuryMeta

@@ -2,7 +2,7 @@ namespace CardLedger.Application.DTOs;
 
 public sealed record PurchaseRequest(
     string CardNumber,
-    DateOnly ExpiryDate,
+    string ExpiryDate,
     string Cvv,
     decimal Amount,
     string Currency,

@@ -30,13 +30,18 @@ internal sealed class TreasuryRateSyncService : BackgroundService
         if (!_options.Enabled)
         {
             _logger.LogInformation("Treasury sync is disabled.");
+            await RefreshSupportedCurrenciesAsync(cancellationToken).ConfigureAwait(false);
             _syncState.MarkBootstrapComplete();
             await base.StartAsync(cancellationToken).ConfigureAwait(false);
             return;
         }
 
-        _logger.LogInformation("Starting Treasury bootstrap sync (last 6 months).");
-        var bootstrapFrom = DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(-6);
+        var utcToday = DateOnly.FromDateTime(DateTime.UtcNow);
+        var bootstrapFrom = _options.GetBootstrapFromDate(utcToday);
+        _logger.LogInformation(
+            "Starting Treasury bootstrap sync from {FromDate} (cutoff {CutoffDate}).",
+            bootstrapFrom,
+            _options.GetSupportedCurrencyFromDate());
         await SyncRatesAsync(bootstrapFrom, cancellationToken).ConfigureAwait(false);
         _syncState.MarkBootstrapComplete();
         _logger.LogInformation("Treasury bootstrap sync completed.");
@@ -63,9 +68,10 @@ internal sealed class TreasuryRateSyncService : BackgroundService
                 break;
             }
 
-            var yesterday = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
-            _logger.LogInformation("Starting Treasury incremental sync from {FromDate}.", yesterday);
-            await SyncRatesAsync(yesterday, stoppingToken).ConfigureAwait(false);
+            var utcToday = DateOnly.FromDateTime(DateTime.UtcNow);
+            var reconcileFrom = _options.GetBootstrapFromDate(utcToday);
+            _logger.LogInformation("Starting Treasury daily reconciliation from {FromDate}.", reconcileFrom);
+            await SyncRatesAsync(reconcileFrom, stoppingToken).ConfigureAwait(false);
         }
     }
 
@@ -86,6 +92,19 @@ internal sealed class TreasuryRateSyncService : BackgroundService
         await repository.UpsertAsync(rates, cancellationToken).ConfigureAwait(false);
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("Treasury sync upserted {Count} rates from {FromDate}.", rates.Count, fromDate);
+
+        await RefreshSupportedCurrenciesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RefreshSupportedCurrenciesAsync(CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var cache = scope.ServiceProvider.GetRequiredService<ISupportedCurrencyCache>();
+        await cache.RefreshAsync(cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation(
+            "Supported currency cache refreshed ({Count} ISO codes since {CutoffDate}).",
+            cache.SupportedIsoCodes.Count,
+            _options.GetSupportedCurrencyFromDate());
     }
 
     private TimeSpan GetDelayUntilNextRun(DateTime utcNow)

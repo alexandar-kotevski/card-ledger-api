@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace CardLedger.Integration.Tests;
 
@@ -24,7 +25,8 @@ public sealed class CardLedgerWebApplicationFactory : WebApplicationFactory<Prog
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:DefaultConnection"] = _connectionString,
-                ["TreasurySync:Enabled"] = "false"
+                ["TreasurySync:Enabled"] = "false",
+                ["TreasurySync:SupportedCurrencyFromDate"] = "2025-12-31"
             });
         });
 
@@ -33,6 +35,7 @@ public sealed class CardLedgerWebApplicationFactory : WebApplicationFactory<Prog
             services.RemoveAll(typeof(DbContextOptions<CardLedgerDbContext>));
             services.AddDbContext<CardLedgerDbContext>(options =>
                 options.UseNpgsql(_connectionString));
+            services.AddHostedService<IntegrationTestCurrencyBootstrap>();
         });
     }
 }

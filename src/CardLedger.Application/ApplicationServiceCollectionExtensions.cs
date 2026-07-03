@@ -7,6 +7,7 @@ public static class ApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddCardLedgerApplication(this IServiceCollection services)
     {
+        services.AddSingleton<CurrencyValidator>();
         services.AddScoped<IssueCardService>();
         services.AddScoped<PurchaseService>();
         services.AddScoped<CurrencyConversionService>();

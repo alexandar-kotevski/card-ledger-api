@@ -14,19 +14,22 @@ public sealed class PurchaseService
     private readonly ITransactionRepository _transactionRepository;
     private readonly CurrencyConversionService _currencyConversionService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly CurrencyValidator _currencyValidator;
 
     public PurchaseService(
         ICardRepository cardRepository,
         ILedgerRepository ledgerRepository,
         ITransactionRepository transactionRepository,
         CurrencyConversionService currencyConversionService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        CurrencyValidator currencyValidator)
     {
         _cardRepository = cardRepository;
         _ledgerRepository = ledgerRepository;
         _transactionRepository = transactionRepository;
         _currencyConversionService = currencyConversionService;
         _unitOfWork = unitOfWork;
+        _currencyValidator = currencyValidator;
     }
 
     public async Task<PurchaseResponse> PurchaseAsync(
@@ -35,7 +38,9 @@ public sealed class PurchaseService
     {
         _ = Pan.Create(request.CardNumber);
         _ = Cvv.Create(request.Cvv);
-        var purchaseCurrency = CurrencyCode.Create(request.Currency);
+        var purchaseCurrency = _currencyValidator.ValidateSupported(request.Currency);
+
+        var cardExpiry = CardExpiry.Parse(request.ExpiryDate);
 
         var card = await _cardRepository
             .GetByPanAsync(request.CardNumber, cancellationToken)
@@ -46,7 +51,7 @@ public sealed class PurchaseService
             throw new CardNotFoundException(request.CardNumber);
         }
 
-        if (card.ExpiryDate != request.ExpiryDate || !CvvHasher.Verify(request.Cvv, card.CvvHash))
+        if (card.ExpiryDate != cardExpiry.EndOfMonthDate || !CvvHasher.Verify(request.Cvv, card.CvvHash))
         {
             throw new InvalidCardCredentialsException();
         }

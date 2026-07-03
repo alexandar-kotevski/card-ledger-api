@@ -23,11 +23,9 @@ public sealed class BalanceService
 
     public async Task<BalanceResponse> GetBalanceAsync(
         string cardNumber,
-        string targetCurrency,
+        string? targetCurrency,
         CancellationToken cancellationToken = default)
     {
-        _ = CurrencyCode.Create(targetCurrency);
-
         var card = await _cardRepository
             .GetByPanAsync(cardNumber, cancellationToken)
             .ConfigureAwait(false);
@@ -44,6 +42,16 @@ public sealed class BalanceService
         if (ledger is null)
         {
             throw new InvalidOperationException($"Ledger not found for card {cardNumber}.");
+        }
+
+        if (string.IsNullOrWhiteSpace(targetCurrency) ||
+            targetCurrency.Equals(ledger.Currency, StringComparison.OrdinalIgnoreCase))
+        {
+            return new BalanceResponse(
+                ledger.AvailableBalance,
+                ledger.Currency,
+                null,
+                null);
         }
 
         var conversion = await _exchangeRateLookbackService

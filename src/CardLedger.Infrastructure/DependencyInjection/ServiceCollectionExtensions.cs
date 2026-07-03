@@ -22,6 +22,12 @@ public static class ServiceCollectionExtensions
 
         services.Configure<TreasurySyncOptions>(configuration.GetSection(TreasurySyncOptions.SectionName));
 
+        services.AddSingleton<TreasuryCurrencyRegistry>();
+        services.AddSingleton<ITreasuryCurrencyRegistry>(sp => sp.GetRequiredService<TreasuryCurrencyRegistry>());
+
+        services.AddSingleton<SupportedCurrencyCache>();
+        services.AddSingleton<ISupportedCurrencyCache>(sp => sp.GetRequiredService<SupportedCurrencyCache>());
+
         services.AddSingleton<TreasurySyncState>();
         services.AddSingleton<ITreasurySyncState>(sp => sp.GetRequiredService<TreasurySyncState>());
 

@@ -2,6 +2,7 @@ using CardLedger.Api.Endpoints;
 using CardLedger.Api.OpenApi;
 using CardLedger.Application;
 using CardLedger.Domain.Exceptions;
+using CardLedger.Domain.ValueObjects;
 using CardLedger.Infrastructure.DependencyInjection;
 using CardLedger.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics;
@@ -113,7 +114,7 @@ static (int StatusCode, string Title, Dictionary<string, object?> Extensions) Ma
             new Dictionary<string, object?>
             {
                 ["cardNumber"] = ex.CardNumber,
-                ["expiryDate"] = ex.ExpiryDate
+                ["expiryDate"] = CardExpiry.FromEndOfMonthDate(ex.ExpiryDate).MmYy
             }),
         CardNotFoundException ex => (
             StatusCodes.Status404NotFound,

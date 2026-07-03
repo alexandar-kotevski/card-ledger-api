@@ -23,4 +23,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="CardLedger.Application.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Treasury\Data\treasury-currency-map.json" />
+  </ItemGroup>
+
 </Project>

@@ -37,6 +37,7 @@ erDiagram
         string CountryCurrencyDesc
         string CurrencyCode
         decimal Rate
+        date EffectiveDate
         date RecordDate
     }
 ```
@@ -49,7 +50,7 @@ Represents an issued payment card.
 |--------|------|-------------|-------|
 | `Id` | `uuid` | PK | Internal identifier |
 | `Pan` | `varchar(16)` | NOT NULL, UNIQUE, INDEX | 16-digit card number returned to integrator |
-| `ExpiryDate` | `date` | NOT NULL | Default: issue date + 3 years |
+| `ExpiryDate` | `date` | NOT NULL | Last day of expiry month (issue + 3 years); API serialises as MM/YY |
 | `CvvHash` | `varchar(64)` | NOT NULL | SHA-256 hash of 3-digit CVV |
 | `CreditLimit` | `numeric(18,4)` | NOT NULL, >= 0 | Decimal precision |
 | `Currency` | `varchar(3)` | NOT NULL | ISO 4217 (card issue currency) |
@@ -58,7 +59,7 @@ Represents an issued payment card.
 **Validation rules**:
 - `CreditLimit` MUST be positive on issue
 - `Pan` MUST be exactly 16 numeric digits
-- `Currency` MUST be a supported ISO 4217 code
+- `Currency` MUST be a supported ISO 4217 code (cached Treasury rate on or after 2025-12-31)
 
 ## Ledger
 
@@ -104,23 +105,29 @@ Cached Treasury reporting rates. Append-only historical cache.
 | `CountryCurrencyDesc` | `varchar(100)` | NOT NULL | Treasury label (e.g. `Euro-Euro`) |
 | `CurrencyCode` | `varchar(3)` | NOT NULL | Mapped ISO 4217 code |
 | `Rate` | `numeric(18,8)` | NOT NULL | Foreign currency units per 1 USD (Treasury convention) |
-| `RecordDate` | `date` | NOT NULL | Treasury publication date |
+| `EffectiveDate` | `date` | NOT NULL | When the rate applies (lookback key) |
+| `RecordDate` | `date` | NOT NULL | Treasury publication date (sync filter / audit) |
 
 **Indexes**:
-- UNIQUE (`CurrencyCode`, `RecordDate`)
-- INDEX (`CurrencyCode`, `RecordDate` DESC) for lookback queries
+- UNIQUE (`CurrencyCode`, `EffectiveDate`)
+- INDEX (`RecordDate`) for sync queries
 
 **Sync behaviour**:
-- Startup: insert rates where `record_date >= UtcToday - 6 months`
-- Daily: insert/upsert rates where `record_date >= yesterday`
+- Startup and daily: fetch `record_date >= windowStart`, upsert by `(CurrencyCode, EffectiveDate)`
+- Daily full-window reconciliation (not yesterday-only incremental)
 - Rows never deleted
+
+**Lookback**: most recent `EffectiveDate` on or before transaction date within 6-month window.
 
 ## Domain Value Objects
 
 | Value Object | Fields | Purpose |
 |--------------|--------|---------|
 | `Money` | `Amount` (decimal), `Currency` (string) | Enforce decimal-only monetary operations |
-| `CurrencyCode` | ISO 4217 string | Validation wrapper |
+| `CurrencyCode` | ISO 4217 string | Format validation wrapper |
+| `CardExpiry` | MM/YY string ↔ `DateOnly` | Parse/format card expiry; end-of-month storage |
+
+**Supported currencies**: ISO codes with at least one row in `exchange_rates` where `EffectiveDate >= 2025-12-31`, held in an in-memory cache refreshed after each Treasury sync. The embedded `treasury-currency-map.json` translates Treasury `country_currency_desc` labels during sync only (descriptors published on/after the cutoff).
 | `Pan` | 16-digit string | Card number validation |
 | `Cvv` | 3-digit string | CVV validation at issue |
 
@@ -131,10 +138,10 @@ Cached Treasury reporting rates. Append-only historical cache.
 ```
 POST /api/cards
   → Validate creditLimit > 0, currency supported
-  → Generate Pan (unique), Cvv (random 3-digit), ExpiryDate (now + 3 years)
+  → Generate Pan (unique), Cvv (random 3-digit), ExpiryDate (issue + 3 years, end of month)
   → INSERT Card
   → INSERT Ledger (AvailableBalance = CreditLimit, Currency = card currency)
-  → Return Pan, ExpiryDate, Cvv (plaintext), Currency, CreditLimit
+  → Return Pan, ExpiryDate (MM/YY), Cvv (plaintext), Currency, CreditLimit
 ```
 
 ### Purchase
@@ -170,9 +177,10 @@ GET /api/cards/{cardNumber}/transactions/{guid}[?targetCurrency=]
 ### Retrieve Balance
 
 ```
-GET /api/cards/{cardNumber}/balance?targetCurrency=
+GET /api/cards/{cardNumber}/balance[?targetCurrency=]
   → Load Ledger for card
-  → Convert AvailableBalance to targetCurrency using MAX(record_date) rate
+  → If targetCurrency omitted: return AvailableBalance in ledger currency (no FX)
+  → If targetCurrency provided: convert using MAX(EffectiveDate) rate
   → On missing latest rate: throw ExchangeRateNotFoundException
 ```
 

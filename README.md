@@ -87,7 +87,28 @@ Production deployments, docs are off unless you opt in with the same setting.
 | POST | `/api/cards/transactions` | Record purchase |
 | GET | `/api/cards/{cardNumber}/transactions` | List transactions |
 | GET | `/api/cards/{cardNumber}/transactions/{guid}` | Get transaction |
-| GET | `/api/cards/{cardNumber}/balance?targetCurrency=` | Available balance |
+| GET | `/api/cards/{cardNumber}/balance` | Available balance (optional `?targetCurrency=` for FX) |
 
-Monetary amounts are serialized as decimal strings in JSON. See
+Monetary amounts are serialized as decimal strings in JSON. Card expiry dates use
+MM/YY format (e.g. `"07/29"`). Supported currencies are ISO 4217 codes with cached
+Treasury exchange rates on or after 2025-12-31. See
 [specs/001-card-ledger-api/contracts/openapi.yaml](specs/001-card-ledger-api/contracts/openapi.yaml).
+
+### Example — issue card
+
+```json
+POST /api/cards
+{
+  "creditLimit": "5000.00",
+  "currency": "USD"
+}
+
+201 Response:
+{
+  "cardNumber": "4111111111111111",
+  "expiryDate": "07/29",
+  "cvv": "123",
+  "currency": "USD",
+  "creditLimit": "5000.00"
+}
+```

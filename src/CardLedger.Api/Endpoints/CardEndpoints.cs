@@ -1,5 +1,6 @@
 using System.Globalization;
 using CardLedger.Api.Contracts;
+using CardLedger.Api.Validation;
 using CardLedger.Application.DTOs;
 using CardLedger.Application.Services;
 using CardLedger.Domain.ValueObjects;
@@ -14,7 +15,7 @@ public static class CardEndpoints
             .WithName("IssueCard")
             .WithSummary("Issue a new card")
             .WithDescription(
-                "Creates a card with generated PAN, expiry (3 years from issue), and CVV. " +
+                "Creates a card with generated PAN, expiry (3 years from issue, MM/YY), and CVV. " +
                 "Initialises a ledger record with available balance equal to credit limit.")
             .WithTags("Cards")
             .Accepts<IssueCardApiRequest>("application/json")
@@ -28,6 +29,7 @@ public static class CardEndpoints
     private static async Task<IResult> IssueCardAsync(
         IssueCardApiRequest request,
         IssueCardService issueCardService,
+        CurrencyValidator currencyValidator,
         CancellationToken cancellationToken)
     {
         if (!TryParseDecimal(request.CreditLimit, out var creditLimit))
@@ -40,13 +42,13 @@ public static class CardEndpoints
 
         try
         {
-            _ = CurrencyCode.Create(request.Currency);
+            currencyValidator.ValidateSupported(request.Currency);
         }
         catch (ArgumentException ex)
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["currency"] = [ex.Message]
+                ["currency"] = [ApiValidationMessages.ForCurrency(request.Currency, ex)]
             });
         }
 
@@ -69,7 +71,7 @@ public static class CardEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                [ex.ParamName ?? "creditLimit"] = [ex.Message]
+                ["creditLimit"] = [ApiValidationMessages.ForCreditLimit(ex)]
             });
         }
     }

@@ -86,7 +86,7 @@ public sealed class CardLedgerFlowTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Created, purchaseResponse.StatusCode);
 
         var balanceResponse = await _client.GetAsync(
-            $"/api/cards/{issueBody.CardNumber}/balance?targetCurrency=USD");
+            $"/api/cards/{issueBody.CardNumber}/balance");
 
         Assert.Equal(HttpStatusCode.OK, balanceResponse.StatusCode);
         var balanceBody = await balanceResponse.Content.ReadFromJsonAsync<BalancePayload>(JsonOptions);

@@ -27,7 +27,7 @@ to the credit limit.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid credit limit and currency, **When** an integrator issues a card, **Then** the response includes a 16-digit card number, expiry date (3 years from issue by default), a random 3-digit CVV, currency, and credit limit.
+1. **Given** a valid credit limit and currency, **When** an integrator issues a card, **Then** the response includes a 16-digit card number, expiry date as MM/YY (default 3 years from issue, last day of that month in storage), a random 3-digit CVV, currency, and credit limit.
 2. **Given** a successful card issue, **When** the ledger is queried, **Then** a ledger record exists for the card with available balance equal to the credit limit in the card currency.
 3. **Given** a credit limit of zero or negative value, **When** an issue is attempted, **Then** the system rejects the request with a clear error.
 
@@ -82,23 +82,26 @@ values using Treasury rates within the 6-month lookback window.
 
 ### User Story 4 - Retrieve Available Balance (Priority: P4)
 
-An integrator checks the remaining spend capacity for a card in a requested
-target currency. The balance is read from the ledger and converted using the
-latest available Treasury exchange rate.
+An integrator checks the remaining spend capacity for a card. When a target
+currency is omitted, the balance is returned in the card ledger currency. When
+provided, the balance is read from the ledger and converted using the latest
+available Treasury exchange rate.
 
 **Why this priority**: Available balance enables spend-authorisation decisions;
 it depends on the ledger being maintained through issue and purchase operations.
 
 **Independent Test**: Issue a card, make purchases, request available balance
-in a target currency; verify the returned balance matches the ledger value
-converted using the latest Treasury rate.
+with and without a target currency; verify the returned balance matches the
+ledger value (converted using the latest Treasury rate when a different target
+currency is requested).
 
 **Acceptance Scenarios**:
 
-1. **Given** a card with a ledger record, **When** available balance is requested for a target currency, **Then** the system returns the ledger-stored available balance converted using the latest available Treasury exchange rate.
-2. **Given** a newly issued card with no purchases, **When** available balance is requested, **Then** the returned balance equals the credit limit (converted to the target currency if different from the card currency).
-3. **Given** no latest Treasury rate exists for the required currency pair, **When** available balance is requested, **Then** the system fails with a precise, identifiable error.
-4. **Given** a card that has had multiple purchases, **When** available balance is requested, **Then** the returned balance reflects all prior purchase debits recorded in the ledger.
+1. **Given** a card with a ledger record, **When** available balance is requested without a target currency, **Then** the system returns the ledger-stored available balance in the card currency with no FX conversion.
+2. **Given** a card with a ledger record, **When** available balance is requested for a target currency, **Then** the system returns the ledger-stored available balance converted using the latest available Treasury exchange rate.
+3. **Given** a newly issued card with no purchases, **When** available balance is requested, **Then** the returned balance equals the credit limit (converted to the target currency if different from the card currency).
+4. **Given** no latest Treasury rate exists for the required currency pair, **When** available balance is requested with FX conversion, **Then** the system fails with a precise, identifiable error.
+5. **Given** a card that has had multiple purchases, **When** available balance is requested, **Then** the returned balance reflects all prior purchase debits recorded in the ledger.
 
 ---
 
@@ -135,7 +138,7 @@ converted using the latest Treasury rate.
 **Issue and ledger initialisation**
 
 - **FR-001**: System MUST expose an issue operation accepting credit limit (decimal) and currency.
-- **FR-002**: On successful issue, system MUST return a 16-digit card number, expiry date (default 3 years from issue), random 3-digit CVV, currency, and credit limit.
+- **FR-002**: On successful issue, system MUST return a 16-digit card number, expiry date as MM/YY (default 3 years from issue, stored as last day of that month), random 3-digit CVV, currency, and credit limit.
 - **FR-003**: On successful issue, system MUST create a ledger record for the card with available balance equal to the credit limit.
 
 **Purchase and ledger update**
@@ -154,17 +157,19 @@ converted using the latest Treasury rate.
 
 **Available balance**
 
-- **FR-012**: System MUST return available balance from the ledger record, expressed in a requested target currency.
+- **FR-012**: System MUST return available balance from the ledger record. When target currency is omitted, balance MUST be returned in the card ledger currency. When target currency is provided, balance MUST be expressed in that currency using the latest Treasury rate.
 - **FR-013**: For available balance conversion, system MUST use the latest available Treasury exchange rate (not the per-transaction historical lookback rule).
 
 **Cross-cutting**
 
 - **FR-014**: All monetary values (limits, amounts, balances, converted totals) MUST use decimal precision — no floating-point types.
 - **FR-015**: Exchange-rate lookback and conversion logic MUST be independently verifiable.
+- **FR-016**: Supported currency codes MUST be valid ISO 4217 codes with at least one cached Treasury exchange rate on or after 2025-12-31 (refreshed from the database after each sync).
+- **FR-017**: API validation errors MUST use user-facing messages without internal parameter names or implementation details.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Card**: Represents an issued payment card. Attributes: 16-digit card number (PAN), expiry date, CVV, credit limit (decimal + currency). Linked to one Ledger record and many Transactions.
+- **Card**: Represents an issued payment card. Attributes: 16-digit card number (PAN), expiry date (MM/YY in API; last day of month in storage), CVV, credit limit (decimal + currency). Linked to one Ledger record and many Transactions.
 - **Ledger**: Represents the available spend balance for a card. One record per card. Attributes: available balance (decimal + currency). Created on card issue; updated on each successful purchase.
 - **Transaction**: Represents a purchase entry. Attributes: unique identifier, description, effective datetime, amount (decimal + currency). Belongs to one Card.
 - **ExchangeRate**: Logical representation of a currency conversion rate sourced from the Treasury service. Attributes: source currency, target currency, rate (decimal), effective date.
@@ -187,7 +192,8 @@ converted using the latest Treasury rate.
 - Ledger available balance is maintained in the card's issue currency; purchases in a different currency are converted to the card currency (using the latest Treasury rate) before debiting the ledger.
 - On card issue, ledger available balance is set equal to the credit limit in the card currency.
 - Card number (PAN) is a system-generated unique 16-digit number; CVV is a random 3-digit value returned at issue and validated on subsequent purchases.
-- Expiry date defaults to issue date plus 3 years.
+- Expiry date defaults to issue date plus 3 years, expressed as MM/YY in JSON (stored as the last calendar day of that month).
+- Supported currencies are ISO 4217 codes with cached Treasury rates on or after 2025-12-31; the descriptor map is used only during sync.
 - Purchase amounts are positive spends that reduce ledger available balance; refunds and reversals are out of scope.
 - Treasury API is an external rate provider supplying historical and latest exchange rates by currency pair and date.
 - Integrators and downstream services are the primary actors; no end-user interface is in scope.

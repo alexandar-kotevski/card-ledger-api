@@ -33,7 +33,7 @@ curl -X POST http://localhost:8080/api/cards `
 
 **Expected (201)**:
 - `cardNumber`: 16-digit PAN
-- `expiryDate`: ~3 years from today
+- `expiryDate`: MM/YY (~3 years from today, e.g. `07/29`)
 - `cvv`: 3-digit string
 - `currency`: `USD`
 - `creditLimit`: `5000.00`
@@ -81,16 +81,27 @@ curl "http://localhost:8080/api/cards/<PAN>/transactions/<transaction-id>?target
 - Single transaction matching Scenario B purchase
 - FX conversion fields present
 
-## Scenario E — Available Balance
+## Scenario E — Available Balance (ledger currency)
 
 ```powershell
-curl "http://localhost:8080/api/cards/<PAN>/balance?targetCurrency=USD"
+curl "http://localhost:8080/api/cards/<PAN>/balance"
 ```
 
 **Expected (200)**:
 - `availableBalance`: `4850.00` (5000.00 - 150.00)
-- `currency`: `USD`
-- `rateUsed` and `rateDate` present (identity rate for same currency)
+- `currency`: `USD` (ledger currency)
+- `rateUsed` and `rateDate` omitted (no FX applied)
+
+## Scenario E2 — Available Balance with FX
+
+```powershell
+curl "http://localhost:8080/api/cards/<PAN>/balance?targetCurrency=EUR"
+```
+
+**Expected (200)**:
+- `availableBalance`: converted amount in EUR
+- `currency`: `EUR`
+- `rateUsed` and `rateDate` present when FX applied
 
 ## Scenario F — Lookback Failure
 

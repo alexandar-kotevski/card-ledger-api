@@ -4,11 +4,6 @@ namespace CardLedger.Domain.ValueObjects;
 
 public sealed partial class CurrencyCode : IEquatable<CurrencyCode>
 {
-    private static readonly HashSet<string> SupportedCodes =
-    [
-        "USD", "EUR", "GBP", "AUD", "CAD", "JPY"
-    ];
-
     public string Value { get; }
 
     private CurrencyCode(string value) => Value = value;
@@ -17,27 +12,20 @@ public sealed partial class CurrencyCode : IEquatable<CurrencyCode>
     {
         if (string.IsNullOrWhiteSpace(code))
         {
-            throw new ArgumentException("Currency code is required.", nameof(code));
+            throw new ArgumentException("Currency code is required.");
         }
 
         var normalized = code.Trim().ToUpperInvariant();
-        if (!Iso4217Pattern().IsMatch(normalized))
+        if (!IsValidFormat(normalized))
         {
-            throw new ArgumentException($"Invalid ISO 4217 currency code: {code}.", nameof(code));
-        }
-
-        if (!SupportedCodes.Contains(normalized))
-        {
-            throw new ArgumentException($"Unsupported currency code: {code}.", nameof(code));
+            throw new ArgumentException($"Invalid ISO 4217 currency code: {code}.");
         }
 
         return new CurrencyCode(normalized);
     }
 
-    public static bool IsSupported(string code) =>
-        !string.IsNullOrWhiteSpace(code) &&
-        Iso4217Pattern().IsMatch(code.Trim().ToUpperInvariant()) &&
-        SupportedCodes.Contains(code.Trim().ToUpperInvariant());
+    public static bool IsValidFormat(string code) =>
+        !string.IsNullOrWhiteSpace(code) && Iso4217Pattern().IsMatch(code.Trim().ToUpperInvariant());
 
     public bool Equals(CurrencyCode? other) =>
         other is not null && Value == other.Value;

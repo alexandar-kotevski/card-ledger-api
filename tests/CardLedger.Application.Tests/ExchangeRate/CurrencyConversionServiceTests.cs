@@ -34,6 +34,7 @@ public class CurrencyConversionServiceTests
                 CurrencyCode = "EUR",
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
+                EffectiveDate = new DateOnly(2026, 6, 30),
                 RecordDate = new DateOnly(2026, 6, 30)
             });
 
@@ -76,6 +77,7 @@ public class CurrencyConversionServiceTests
                 CurrencyCode = "EUR",
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
+                EffectiveDate = transactionDate.AddDays(-1),
                 RecordDate = transactionDate.AddDays(-1)
             });
 

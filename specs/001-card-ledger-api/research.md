@@ -22,7 +22,7 @@ Phase 0 research resolving technical unknowns for implementation planning.
 
 **URL**: `https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange`
 
-**Fields used**: `country_currency_desc`, `exchange_rate`, `record_date`
+**Fields used**: `country_currency_desc`, `exchange_rate`, `record_date`, `effective_date`
 
 **Example request**:
 ```
@@ -48,24 +48,30 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 
 ## Rate Selection Rules
 
-**Decision**: Use `record_date` as the effective date for all rate lookups.
+**Decision**: Use `effective_date` as the lookup date for all rate queries; retain `record_date` for Treasury sync filtering and audit.
 
-**Rationale**: Treasury publishes quarterly; `record_date` is the authoritative publication date.
+**Rationale**: Treasury may publish multiple effective periods under one `record_date` (e.g. Israel-Shekel with effective dates 2026-03-31 and 2026-05-29 on record_date 2026-03-31). Lookback must key off when the rate applies, not when it was filed.
 
 ### Transaction FX (historical lookback)
 
-- Window: inclusive 6 calendar months `[transactionDate - 6 months, transactionDate]`
-- Selection: most recent `record_date` on or before the transaction date within the window
+- Window: inclusive 6 calendar months `[transactionDate - 6 months, transactionDate]` on **`effective_date`**
+- Selection: most recent `effective_date` on or before the transaction date within the window
+- API `rateDate` response field reflects **`effective_date`**
 - Failure: `ExchangeRateNotFoundException` with card, transaction, currency, and date context
 
 ### Balance FX (latest rate)
 
-- Selection: `MAX(record_date)` for the currency pair in the cached `ExchangeRates` table
+- Selection: `MAX(effective_date)` for the currency in the cached `ExchangeRates` table
 - Distinct code path from per-transaction historical lookback (spec FR-013)
 
 ### Purchase ledger debit
 
-- Convert purchase amount to card currency using **latest** cached rate before debiting ledger
+- Convert purchase amount to card currency using **latest** cached rate (by `effective_date`) before debiting ledger
+
+### Treasury sync storage
+
+- Fetch filter: `record_date:gte:{windowStart}` (captures backfills under older publication dates)
+- Upsert key: `(CurrencyCode, EffectiveDate)` — multiple rows per `record_date` allowed
 
 ## Treasury Rate Sync Service
 
@@ -73,7 +79,7 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 
 ### Startup bootstrap
 
-- Fetches last **6 calendar months** only: `record_date:gte:{UtcToday - 6 months}`
+- Fetches lookback window: `record_date:gte:max(cutoff, UtcToday - 6 months)`
 - Runs **before** API accepts traffic (blocking bootstrap)
 - Paginated fetch (Treasury `page[size]` + `page[number]`)
 
@@ -82,14 +88,14 @@ GET .../rates_of_exchange?fields=country_currency_desc,exchange_rate,record_date
 ### Daily schedule
 
 - Fires at **00:00 UTC** (configurable `TreasurySync:DailyRunTimeUtc`, default `"00:00:00"`)
-- Incremental fetch: `record_date:gte:{yesterday}`
-- No sub-daily polling
+- **Full-window reconciliation**: `record_date:gte:max(cutoff, UtcToday - 6 months)` — same window as bootstrap; catches late Treasury backfills
+- No separate yesterday-only incremental pass
 
 ### Rate retention
 
 - **Append-only historical cache**
-- New `record_date` → INSERT new row
-- Existing `record_date` re-synced → UPSERT (update rate in place)
+- New `(CurrencyCode, EffectiveDate)` → INSERT new row
+- Existing effective date re-synced → UPSERT (update rate and `record_date` in place)
 - Rows **never deleted**
 - Over time, table grows beyond 6 months via daily appends
 

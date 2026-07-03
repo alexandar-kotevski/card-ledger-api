@@ -1,0 +1,674 @@
+[
+  {
+    "countryCurrencyDesc": "Afghanistan-Afghani",
+    "iso4217": "AFN"
+  },
+  {
+    "countryCurrencyDesc": "Albania-Lek",
+    "iso4217": "ALL"
+  },
+  {
+    "countryCurrencyDesc": "Algeria-Dinar",
+    "iso4217": "DZD"
+  },
+  {
+    "countryCurrencyDesc": "Angola-Kwanza",
+    "iso4217": "AOA"
+  },
+  {
+    "countryCurrencyDesc": "Antigua & Barbuda-East Caribbean Dollar",
+    "iso4217": "XCD"
+  },
+  {
+    "countryCurrencyDesc": "Argentina-Peso",
+    "iso4217": "ARS"
+  },
+  {
+    "countryCurrencyDesc": "Armenia-Dram",
+    "iso4217": "AMD"
+  },
+  {
+    "countryCurrencyDesc": "Australia-Dollar",
+    "iso4217": "AUD"
+  },
+  {
+    "countryCurrencyDesc": "Azerbaijan-Manat",
+    "iso4217": "AZN"
+  },
+  {
+    "countryCurrencyDesc": "Bahamas-Dollar",
+    "iso4217": "BSD"
+  },
+  {
+    "countryCurrencyDesc": "Bahrain-Dinar",
+    "iso4217": "BHD"
+  },
+  {
+    "countryCurrencyDesc": "Bangladesh-Taka",
+    "iso4217": "BDT"
+  },
+  {
+    "countryCurrencyDesc": "Barbados-Dollar",
+    "iso4217": "BBD"
+  },
+  {
+    "countryCurrencyDesc": "Belarus-New Ruble",
+    "iso4217": "BYN"
+  },
+  {
+    "countryCurrencyDesc": "Belize-Dollar",
+    "iso4217": "BZD"
+  },
+  {
+    "countryCurrencyDesc": "Benin-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Bermuda-Dollar",
+    "iso4217": "BMD"
+  },
+  {
+    "countryCurrencyDesc": "Bolivia-Boliviano",
+    "iso4217": "BOB"
+  },
+  {
+    "countryCurrencyDesc": "Bosnia-Marka",
+    "iso4217": "BAM"
+  },
+  {
+    "countryCurrencyDesc": "Botswana-Pula",
+    "iso4217": "BWP"
+  },
+  {
+    "countryCurrencyDesc": "Brazil-Real",
+    "iso4217": "BRL"
+  },
+  {
+    "countryCurrencyDesc": "Brunei-Dollar",
+    "iso4217": "BND"
+  },
+  {
+    "countryCurrencyDesc": "Bulgaria-Lev New",
+    "iso4217": "BGN"
+  },
+  {
+    "countryCurrencyDesc": "Burkina Faso-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Burundi-Franc",
+    "iso4217": "BIF"
+  },
+  {
+    "countryCurrencyDesc": "Cambodia-Riel",
+    "iso4217": "KHR"
+  },
+  {
+    "countryCurrencyDesc": "Cameroon-Cfa Franc",
+    "iso4217": "XAF"
+  },
+  {
+    "countryCurrencyDesc": "Canada-Dollar",
+    "iso4217": "CAD"
+  },
+  {
+    "countryCurrencyDesc": "Cape Verde-Escudo",
+    "iso4217": "CVE"
+  },
+  {
+    "countryCurrencyDesc": "Cayman Islands-Dollar",
+    "iso4217": "KYD"
+  },
+  {
+    "countryCurrencyDesc": "Central African Republic-Cfa Franc",
+    "iso4217": "XAF"
+  },
+  {
+    "countryCurrencyDesc": "Chad-Cfa Franc",
+    "iso4217": "XAF"
+  },
+  {
+    "countryCurrencyDesc": "Chile-Peso",
+    "iso4217": "CLP"
+  },
+  {
+    "countryCurrencyDesc": "China-Renminbi",
+    "iso4217": "CNY"
+  },
+  {
+    "countryCurrencyDesc": "Colombia-Peso",
+    "iso4217": "COP"
+  },
+  {
+    "countryCurrencyDesc": "Comoros-Franc",
+    "iso4217": "KMF"
+  },
+  {
+    "countryCurrencyDesc": "Congo-Cfa Franc",
+    "iso4217": "XAF"
+  },
+  {
+    "countryCurrencyDesc": "Costa Rica-Colon",
+    "iso4217": "CRC"
+  },
+  {
+    "countryCurrencyDesc": "Cote D'Ivoire-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Cuba-Chavito",
+    "iso4217": "CUP"
+  },
+  {
+    "countryCurrencyDesc": "Cuba-Peso",
+    "iso4217": "CUP"
+  },
+  {
+    "countryCurrencyDesc": "Curacao-Caribbean Guilder",
+    "iso4217": "XCG"
+  },
+  {
+    "countryCurrencyDesc": "Cyprus-Euro",
+    "iso4217": "EUR"
+  },
+  {
+    "countryCurrencyDesc": "Czech Republic-Koruna",
+    "iso4217": "CZK"
+  },
+  {
+    "countryCurrencyDesc": "Democratic Republic Of Congo-Congolese Franc",
+    "iso4217": "CDF"
+  },
+  {
+    "countryCurrencyDesc": "Denmark-Krone",
+    "iso4217": "DKK"
+  },
+  {
+    "countryCurrencyDesc": "Djibouti-Franc",
+    "iso4217": "DJF"
+  },
+  {
+    "countryCurrencyDesc": "Dominican Republic-Peso",
+    "iso4217": "DOP"
+  },
+  {
+    "countryCurrencyDesc": "Ecuador-Dolares",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Egypt-Pound",
+    "iso4217": "EGP"
+  },
+  {
+    "countryCurrencyDesc": "El Salvador-Dollar",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Equatorial Guinea-Cfa Franc",
+    "iso4217": "XAF"
+  },
+  {
+    "countryCurrencyDesc": "Eritrea-Nakfa",
+    "iso4217": "ERN"
+  },
+  {
+    "countryCurrencyDesc": "Eswatini-Lilangeni",
+    "iso4217": "SZL"
+  },
+  {
+    "countryCurrencyDesc": "Ethiopia-Birr",
+    "iso4217": "ETB"
+  },
+  {
+    "countryCurrencyDesc": "Euro Zone-Euro",
+    "iso4217": "EUR"
+  },
+  {
+    "countryCurrencyDesc": "Fiji-Dollar",
+    "iso4217": "FJD"
+  },
+  {
+    "countryCurrencyDesc": "Gabon-Cfa Franc",
+    "iso4217": "XAF"
+  },
+  {
+    "countryCurrencyDesc": "Gambia-Dalasi",
+    "iso4217": "GMD"
+  },
+  {
+    "countryCurrencyDesc": "Georgia-Lari",
+    "iso4217": "GEL"
+  },
+  {
+    "countryCurrencyDesc": "Ghana-Cedi",
+    "iso4217": "GHS"
+  },
+  {
+    "countryCurrencyDesc": "Grenada-East Caribbean Dollar",
+    "iso4217": "XCD"
+  },
+  {
+    "countryCurrencyDesc": "Guatemala-Quetzal",
+    "iso4217": "GTQ"
+  },
+  {
+    "countryCurrencyDesc": "Guinea Bissau-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Guinea-Franc",
+    "iso4217": "GNF"
+  },
+  {
+    "countryCurrencyDesc": "Guyana-Dollar",
+    "iso4217": "GYD"
+  },
+  {
+    "countryCurrencyDesc": "Haiti-Gourde",
+    "iso4217": "HTG"
+  },
+  {
+    "countryCurrencyDesc": "Honduras-Lempira",
+    "iso4217": "HNL"
+  },
+  {
+    "countryCurrencyDesc": "Hong Kong-Dollar",
+    "iso4217": "HKD"
+  },
+  {
+    "countryCurrencyDesc": "Hungary-Forint",
+    "iso4217": "HUF"
+  },
+  {
+    "countryCurrencyDesc": "Iceland-Krona",
+    "iso4217": "ISK"
+  },
+  {
+    "countryCurrencyDesc": "India-Rupee",
+    "iso4217": "INR"
+  },
+  {
+    "countryCurrencyDesc": "Indonesia-Rupiah",
+    "iso4217": "IDR"
+  },
+  {
+    "countryCurrencyDesc": "Iran-Rial",
+    "iso4217": "IRR"
+  },
+  {
+    "countryCurrencyDesc": "Iraq-Dinar",
+    "iso4217": "IQD"
+  },
+  {
+    "countryCurrencyDesc": "Israel-Shekel",
+    "iso4217": "ILS"
+  },
+  {
+    "countryCurrencyDesc": "Jamaica-Dollar",
+    "iso4217": "JMD"
+  },
+  {
+    "countryCurrencyDesc": "Japan-Yen",
+    "iso4217": "JPY"
+  },
+  {
+    "countryCurrencyDesc": "Jordan-Dinar",
+    "iso4217": "JOD"
+  },
+  {
+    "countryCurrencyDesc": "Kazakhstan-Tenge",
+    "iso4217": "KZT"
+  },
+  {
+    "countryCurrencyDesc": "Kenya-Shilling",
+    "iso4217": "KES"
+  },
+  {
+    "countryCurrencyDesc": "Korea-Won",
+    "iso4217": "KRW"
+  },
+  {
+    "countryCurrencyDesc": "Kuwait-Dinar",
+    "iso4217": "KWD"
+  },
+  {
+    "countryCurrencyDesc": "Kyrgyzstan-Som",
+    "iso4217": "KGS"
+  },
+  {
+    "countryCurrencyDesc": "Laos-Kip",
+    "iso4217": "LAK"
+  },
+  {
+    "countryCurrencyDesc": "Lebanon-Pound",
+    "iso4217": "LBP"
+  },
+  {
+    "countryCurrencyDesc": "Lesotho-Maloti",
+    "iso4217": "LSL"
+  },
+  {
+    "countryCurrencyDesc": "Liberia-Dollar",
+    "iso4217": "LRD"
+  },
+  {
+    "countryCurrencyDesc": "Libya-Dinar",
+    "iso4217": "LYD"
+  },
+  {
+    "countryCurrencyDesc": "Madagascar-Ariary",
+    "iso4217": "MGA"
+  },
+  {
+    "countryCurrencyDesc": "Malawi-Kwacha",
+    "iso4217": "MWK"
+  },
+  {
+    "countryCurrencyDesc": "Malaysia-Ringgit",
+    "iso4217": "MYR"
+  },
+  {
+    "countryCurrencyDesc": "Maldives-Rufiyaa",
+    "iso4217": "MVR"
+  },
+  {
+    "countryCurrencyDesc": "Mali-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Marshall Islands-U.S. Dollar",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Mauritania-Ouguiya",
+    "iso4217": "MRU"
+  },
+  {
+    "countryCurrencyDesc": "Mauritius-Rupee",
+    "iso4217": "MUR"
+  },
+  {
+    "countryCurrencyDesc": "Mexico-Peso",
+    "iso4217": "MXN"
+  },
+  {
+    "countryCurrencyDesc": "Micronesia-U.S. Dollar",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Moldova-Leu",
+    "iso4217": "MDL"
+  },
+  {
+    "countryCurrencyDesc": "Mongolia-Tugrik",
+    "iso4217": "MNT"
+  },
+  {
+    "countryCurrencyDesc": "Morocco-Dirham",
+    "iso4217": "MAD"
+  },
+  {
+    "countryCurrencyDesc": "Mozambique-Metical",
+    "iso4217": "MZN"
+  },
+  {
+    "countryCurrencyDesc": "Myanmar-Kyat",
+    "iso4217": "MMK"
+  },
+  {
+    "countryCurrencyDesc": "Namibia-Dollar",
+    "iso4217": "NAD"
+  },
+  {
+    "countryCurrencyDesc": "Nepal-Rupee",
+    "iso4217": "NPR"
+  },
+  {
+    "countryCurrencyDesc": "New Zealand-Dollar",
+    "iso4217": "NZD"
+  },
+  {
+    "countryCurrencyDesc": "Nicaragua-Cordoba",
+    "iso4217": "NIO"
+  },
+  {
+    "countryCurrencyDesc": "Niger-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Nigeria-Naira",
+    "iso4217": "NGN"
+  },
+  {
+    "countryCurrencyDesc": "Norway-Krone",
+    "iso4217": "NOK"
+  },
+  {
+    "countryCurrencyDesc": "Oman-Rial",
+    "iso4217": "OMR"
+  },
+  {
+    "countryCurrencyDesc": "Pakistan-Rupee",
+    "iso4217": "PKR"
+  },
+  {
+    "countryCurrencyDesc": "Palau-Dollar",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Panama-Dolares",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Papua New Guinea-Kina",
+    "iso4217": "PGK"
+  },
+  {
+    "countryCurrencyDesc": "Paraguay-Guarani",
+    "iso4217": "PYG"
+  },
+  {
+    "countryCurrencyDesc": "Peru-Sol",
+    "iso4217": "PEN"
+  },
+  {
+    "countryCurrencyDesc": "Philippines-Peso",
+    "iso4217": "PHP"
+  },
+  {
+    "countryCurrencyDesc": "Poland-Zloty",
+    "iso4217": "PLN"
+  },
+  {
+    "countryCurrencyDesc": "Qatar-Riyal",
+    "iso4217": "QAR"
+  },
+  {
+    "countryCurrencyDesc": "Republic Of North Macedonia-Denar",
+    "iso4217": "MKD"
+  },
+  {
+    "countryCurrencyDesc": "Romania-New Leu",
+    "iso4217": "RON"
+  },
+  {
+    "countryCurrencyDesc": "Russia-Ruble",
+    "iso4217": "RUB"
+  },
+  {
+    "countryCurrencyDesc": "Rwanda-Franc",
+    "iso4217": "RWF"
+  },
+  {
+    "countryCurrencyDesc": "Sao Tome & Principe-New Dobras",
+    "iso4217": "STN"
+  },
+  {
+    "countryCurrencyDesc": "Saudi Arabia-Riyal",
+    "iso4217": "SAR"
+  },
+  {
+    "countryCurrencyDesc": "Senegal-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Serbia-Dinar",
+    "iso4217": "RSD"
+  },
+  {
+    "countryCurrencyDesc": "Seychelles-Rupee",
+    "iso4217": "SCR"
+  },
+  {
+    "countryCurrencyDesc": "Sierra Leone-Leone",
+    "iso4217": "SLE"
+  },
+  {
+    "countryCurrencyDesc": "Singapore-Dollar",
+    "iso4217": "SGD"
+  },
+  {
+    "countryCurrencyDesc": "Solomon Islands-Dollar",
+    "iso4217": "SBD"
+  },
+  {
+    "countryCurrencyDesc": "Somali-Shilling",
+    "iso4217": "SOS"
+  },
+  {
+    "countryCurrencyDesc": "South Africa-Rand",
+    "iso4217": "ZAR"
+  },
+  {
+    "countryCurrencyDesc": "South Sudan-Sudanese Pound",
+    "iso4217": "SSP"
+  },
+  {
+    "countryCurrencyDesc": "Sri Lanka-Rupee",
+    "iso4217": "LKR"
+  },
+  {
+    "countryCurrencyDesc": "St. Lucia-East Caribbean Dollar",
+    "iso4217": "XCD"
+  },
+  {
+    "countryCurrencyDesc": "Sudan-Pound",
+    "iso4217": "SDG"
+  },
+  {
+    "countryCurrencyDesc": "Suriname-Dollar",
+    "iso4217": "SRD"
+  },
+  {
+    "countryCurrencyDesc": "Sweden-Krona",
+    "iso4217": "SEK"
+  },
+  {
+    "countryCurrencyDesc": "Switzerland-Franc",
+    "iso4217": "CHF"
+  },
+  {
+    "countryCurrencyDesc": "Syria-Pound",
+    "iso4217": "SYP"
+  },
+  {
+    "countryCurrencyDesc": "Taiwan-Dollar",
+    "iso4217": "TWD"
+  },
+  {
+    "countryCurrencyDesc": "Tajikistan-Somoni",
+    "iso4217": "TJS"
+  },
+  {
+    "countryCurrencyDesc": "Tanzania-Shilling",
+    "iso4217": "TZS"
+  },
+  {
+    "countryCurrencyDesc": "Thailand-Baht",
+    "iso4217": "THB"
+  },
+  {
+    "countryCurrencyDesc": "Timor-Leste-Dili",
+    "iso4217": "USD"
+  },
+  {
+    "countryCurrencyDesc": "Togo-Cfa Franc",
+    "iso4217": "XOF"
+  },
+  {
+    "countryCurrencyDesc": "Tonga-Pa'Anga",
+    "iso4217": "TOP"
+  },
+  {
+    "countryCurrencyDesc": "Trinidad & Tobago-Dollar",
+    "iso4217": "TTD"
+  },
+  {
+    "countryCurrencyDesc": "Tunisia-Dinar",
+    "iso4217": "TND"
+  },
+  {
+    "countryCurrencyDesc": "Turkey-New Lira",
+    "iso4217": "TRY"
+  },
+  {
+    "countryCurrencyDesc": "Turkmenistan-New Manat",
+    "iso4217": "TMT"
+  },
+  {
+    "countryCurrencyDesc": "Uganda-Shilling",
+    "iso4217": "UGX"
+  },
+  {
+    "countryCurrencyDesc": "Ukraine-Hryvnia",
+    "iso4217": "UAH"
+  },
+  {
+    "countryCurrencyDesc": "United Arab Emirates-Dirham",
+    "iso4217": "AED"
+  },
+  {
+    "countryCurrencyDesc": "United Kingdom-Pound",
+    "iso4217": "GBP"
+  },
+  {
+    "countryCurrencyDesc": "Uruguay-Peso",
+    "iso4217": "UYU"
+  },
+  {
+    "countryCurrencyDesc": "Uzbekistan-Som",
+    "iso4217": "UZS"
+  },
+  {
+    "countryCurrencyDesc": "Vanuatu-Vatu",
+    "iso4217": "VUV"
+  },
+  {
+    "countryCurrencyDesc": "Venezuela-Bolivar Soberano",
+    "iso4217": "VES"
+  },
+  {
+    "countryCurrencyDesc": "Venezuela-Fuerte",
+    "iso4217": "VES"
+  },
+  {
+    "countryCurrencyDesc": "Vietnam-Dong",
+    "iso4217": "VND"
+  },
+  {
+    "countryCurrencyDesc": "Western Samoa-Tala",
+    "iso4217": "WST"
+  },
+  {
+    "countryCurrencyDesc": "Yemen-Rial",
+    "iso4217": "YER"
+  },
+  {
+    "countryCurrencyDesc": "Zambia-New Kwacha",
+    "iso4217": "ZMW"
+  },
+  {
+    "countryCurrencyDesc": "Zimbabwe-Gold",
+    "iso4217": "ZWG"
+  }
+]

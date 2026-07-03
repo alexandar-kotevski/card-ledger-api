@@ -145,16 +145,21 @@ paths:
       operationId: getAvailableBalance
       summary: Get available balance
       description: |
-        Returns ledger-stored available balance converted to the target currency
-        using the latest cached Treasury exchange rate.
+        Returns ledger-stored available balance. When targetCurrency is omitted,
+        returns the balance in the card ledger currency without FX conversion.
+        When targetCurrency is provided, converts using the latest cached Treasury
+        exchange rate.
       parameters:
         - $ref: '#/components/parameters/CardNumber'
         - name: targetCurrency
           in: query
-          required: true
+          required: false
           schema:
             type: string
             pattern: '^[A-Z]{3}$'
+          description: |
+            Optional ISO 4217 currency code for FX conversion. Defaults to the
+            card ledger currency when omitted.
       responses:
         '200':
           description: Available balance
@@ -192,6 +197,7 @@ components:
           type: string
           pattern: '^[A-Z]{3}$'
           example: USD
+          description: ISO 4217 code with a cached Treasury rate on or after 2025-12-31
 
     IssueCardResponse:
       type: object
@@ -203,8 +209,9 @@ components:
           example: '4111111111111111'
         expiryDate:
           type: string
-          format: date
-          example: '2029-07-02'
+          pattern: '^(0[1-9]|1[0-2])\/\d{2}$'
+          example: '07/29'
+          description: Card expiry month/year (MM/YY), last day of that month in storage
         cvv:
           type: string
           pattern: '^\d{3}$'
@@ -225,7 +232,9 @@ components:
           pattern: '^\d{16}$'
         expiryDate:
           type: string
-          format: date
+          pattern: '^(0[1-9]|1[0-2])\/\d{2}$'
+          example: '07/29'
+          description: Card expiry month/year (MM/YY) matching the issued card
         cvv:
           type: string
           pattern: '^\d{3}$'
@@ -285,7 +294,7 @@ components:
         rateDate:
           type: string
           format: date
-          description: Treasury record_date of the rate used
+          description: Treasury effective_date of the rate used
 
     BalanceResponse:
       type: object
@@ -296,7 +305,9 @@ components:
           example: '4850.00'
         currency:
           type: string
-          description: Target currency requested
+          description: |
+            Response currency — ledger currency when targetCurrency was omitted,
+            otherwise the requested target currency
         rateUsed:
           type: string
         rateDate:

@@ -1,5 +1,6 @@
 using System.Globalization;
 using CardLedger.Api.Contracts;
+using CardLedger.Api.Validation;
 using CardLedger.Application.DTOs;
 using CardLedger.Application.Services;
 using CardLedger.Domain.ValueObjects;
@@ -51,9 +52,10 @@ public static class TransactionEndpoints
     private static async Task<IResult> PurchaseAsync(
         PurchaseApiRequest request,
         PurchaseService purchaseService,
+        CurrencyValidator currencyValidator,
         CancellationToken cancellationToken)
     {
-        var validationErrors = ValidatePurchaseRequest(request);
+        var validationErrors = ValidatePurchaseRequest(request, currencyValidator);
         if (validationErrors.Count > 0)
         {
             return Results.ValidationProblem(validationErrors);
@@ -110,7 +112,7 @@ public static class TransactionEndpoints
             {
                 return Results.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["targetCurrency"] = [ex.Message]
+                    ["targetCurrency"] = [ApiValidationMessages.ForCurrency(targetCurrency, ex)]
                 });
             }
         }
@@ -147,7 +149,7 @@ public static class TransactionEndpoints
             {
                 return Results.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["targetCurrency"] = [ex.Message]
+                    ["targetCurrency"] = [ApiValidationMessages.ForCurrency(targetCurrency, ex)]
                 });
             }
         }
@@ -166,7 +168,9 @@ public static class TransactionEndpoints
         }
     }
 
-    private static Dictionary<string, string[]> ValidatePurchaseRequest(PurchaseApiRequest request)
+    private static Dictionary<string, string[]> ValidatePurchaseRequest(
+        PurchaseApiRequest request,
+        CurrencyValidator currencyValidator)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -177,20 +181,29 @@ public static class TransactionEndpoints
 
         try
         {
-            _ = Cvv.Create(request.Cvv);
+            _ = CardExpiry.Parse(request.ExpiryDate);
         }
         catch (ArgumentException ex)
         {
-            errors["cvv"] = [ex.Message];
+            errors["expiryDate"] = [ApiValidationMessages.ForExpiry(request.ExpiryDate, ex)];
         }
 
         try
         {
-            _ = CurrencyCode.Create(request.Currency);
+            _ = Cvv.Create(request.Cvv);
         }
         catch (ArgumentException ex)
         {
-            errors["currency"] = [ex.Message];
+            errors["cvv"] = [ApiValidationMessages.ForCvv(ex)];
+        }
+
+        try
+        {
+            currencyValidator.ValidateSupported(request.Currency);
+        }
+        catch (ArgumentException ex)
+        {
+            errors["currency"] = [ApiValidationMessages.ForCurrency(request.Currency, ex)];
         }
 
         if (string.IsNullOrWhiteSpace(request.Description) || request.Description.Length > 200)

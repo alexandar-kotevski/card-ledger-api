@@ -13,4 +13,8 @@ public interface IExchangeRateRepository
         CancellationToken cancellationToken = default);
 
     Task UpsertAsync(IEnumerable<ExchangeRate> rates, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlySet<string>> GetSupportedIsoCodesAsync(
+        DateOnly fromDate,
+        CancellationToken cancellationToken = default);
 }

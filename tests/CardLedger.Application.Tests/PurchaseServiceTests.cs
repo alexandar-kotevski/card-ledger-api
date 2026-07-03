@@ -4,8 +4,8 @@ using CardLedger.Application.Services;
 using CardLedger.Domain.Entities;
 using CardLedger.Domain.Exceptions;
 using CardLedger.Domain.Services;
+using CardLedger.Domain.ValueObjects;
 using NSubstitute;
-
 namespace CardLedger.Application.Tests;
 
 public class PurchaseServiceTests
@@ -25,20 +25,21 @@ public class PurchaseServiceTests
             _ledgerRepository,
             _transactionRepository,
             conversionService,
-            _unitOfWork);
+            _unitOfWork,
+            TestCurrencySupport.CreateValidator("USD", "EUR", "GBP", "AUD", "CAD", "JPY"));
     }
-
     [Fact]
     public async Task PurchaseAsync_DebitsLedgerForValidPurchase()
     {
         var cardId = Guid.NewGuid();
         const string pan = "4111111111111111";
         const string cvv = "123";
+        var cardExpiry = CardExpiry.FromIssueDate(DateOnly.FromDateTime(DateTime.UtcNow));
         var card = new Card
         {
             Id = cardId,
             Pan = pan,
-            ExpiryDate = DateOnly.FromDateTime(DateTime.UtcNow).AddYears(1),
+            ExpiryDate = cardExpiry.EndOfMonthDate,
             CvvHash = CvvHasher.Hash(cvv),
             CreditLimit = 1000m,
             Currency = "USD",
@@ -59,7 +60,7 @@ public class PurchaseServiceTests
 
         var response = await _sut.PurchaseAsync(new PurchaseRequest(
             pan,
-            card.ExpiryDate,
+            cardExpiry.MmYy,
             cvv,
             100m,
             "USD",
@@ -77,11 +78,12 @@ public class PurchaseServiceTests
         var cardId = Guid.NewGuid();
         const string pan = "4222222222222222";
         const string cvv = "456";
+        var cardExpiry = CardExpiry.FromIssueDate(DateOnly.FromDateTime(DateTime.UtcNow));
         var card = new Card
         {
             Id = cardId,
             Pan = pan,
-            ExpiryDate = DateOnly.FromDateTime(DateTime.UtcNow).AddYears(1),
+            ExpiryDate = cardExpiry.EndOfMonthDate,
             CvvHash = CvvHasher.Hash(cvv),
             CreditLimit = 100m,
             Currency = "USD",
@@ -103,7 +105,7 @@ public class PurchaseServiceTests
         await Assert.ThrowsAsync<InsufficientBalanceException>(() =>
             _sut.PurchaseAsync(new PurchaseRequest(
                 pan,
-                card.ExpiryDate,
+                cardExpiry.MmYy,
                 cvv,
                 100m,
                 "USD",

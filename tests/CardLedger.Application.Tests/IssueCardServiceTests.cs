@@ -2,6 +2,7 @@ using CardLedger.Application.Abstractions;
 using CardLedger.Application.DTOs;
 using CardLedger.Application.Services;
 using CardLedger.Domain.Entities;
+using CardLedger.Domain.ValueObjects;
 using NSubstitute;
 
 namespace CardLedger.Application.Tests;
@@ -15,7 +16,11 @@ public class IssueCardServiceTests
 
     public IssueCardServiceTests()
     {
-        _sut = new IssueCardService(_cardRepository, _ledgerRepository, _unitOfWork);
+        _sut = new IssueCardService(
+            _cardRepository,
+            _ledgerRepository,
+            _unitOfWork,
+            TestCurrencySupport.CreateValidator("USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CHF"));
     }
 
     [Fact]
@@ -36,6 +41,7 @@ public class IssueCardServiceTests
         Assert.Equal("USD", response.Currency);
         Assert.Equal(5000m, response.CreditLimit);
         Assert.Equal(3, response.Cvv.Length);
+        Assert.Matches(@"^\d{2}/\d{2}$", response.ExpiryDate);
         Assert.NotNull(savedCard);
         Assert.NotNull(savedLedger);
         Assert.Equal(savedCard!.Id, savedLedger!.CardId);

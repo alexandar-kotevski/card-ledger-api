@@ -63,6 +63,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "EUR",
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
+                EffectiveDate = transactionDateOnly.AddDays(-10),
                 RecordDate = transactionDateOnly.AddDays(-10)
             });
 
@@ -72,6 +73,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "GBP",
                 CountryCurrencyDesc = "United Kingdom-Pound",
                 Rate = 0.80m,
+                EffectiveDate = transactionDateOnly.AddDays(-5),
                 RecordDate = transactionDateOnly.AddDays(-5)
             });
 
@@ -102,6 +104,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "EUR",
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
+                EffectiveDate = boundaryDate,
                 RecordDate = boundaryDate
             });
 
@@ -173,6 +176,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "EUR",
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
+                EffectiveDate = new DateOnly(2026, 6, 30),
                 RecordDate = new DateOnly(2026, 6, 30)
             });
 
@@ -182,6 +186,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "GBP",
                 CountryCurrencyDesc = "United Kingdom-Pound",
                 Rate = 0.80m,
+                EffectiveDate = new DateOnly(2026, 6, 29),
                 RecordDate = new DateOnly(2026, 6, 29)
             });
 
@@ -212,6 +217,7 @@ public class ExchangeRateLookbackServiceTests
                 CurrencyCode = "EUR",
                 CountryCurrencyDesc = "Euro-Euro",
                 Rate = 0.90m,
+                EffectiveDate = new DateOnly(2026, 6, 30),
                 RecordDate = new DateOnly(2026, 6, 30)
             });
 
@@ -223,6 +229,36 @@ public class ExchangeRateLookbackServiceTests
 
         Assert.Equal(100m, result.ConvertedAmount);
         Assert.Equal(new DateOnly(2026, 6, 30), result.RateDate);
+    }
+
+    [Fact]
+    public async Task ConvertForTransactionAsync_ReportsEffectiveDateNotRecordDate()
+    {
+        var transactionDate = new DateTimeOffset(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
+        var transactionDateOnly = DateOnly.FromDateTime(transactionDate.UtcDateTime);
+        var windowStart = transactionDateOnly.AddMonths(-6);
+        var effectiveDate = new DateOnly(2026, 5, 29);
+        var recordDate = new DateOnly(2026, 3, 31);
+
+        _repository.GetMostRecentInWindowAsync("ILS", transactionDateOnly, windowStart, Arg.Any<CancellationToken>())
+            .Returns(new ExchangeRateEntity
+            {
+                CurrencyCode = "ILS",
+                CountryCurrencyDesc = "Israel-Shekel",
+                Rate = 2.807m,
+                EffectiveDate = effectiveDate,
+                RecordDate = recordDate
+            });
+
+        var result = await _sut.ConvertForTransactionAsync(
+            280.70m,
+            "ILS",
+            "USD",
+            transactionDate,
+            "4111111111111111",
+            Guid.NewGuid());
+
+        Assert.Equal(effectiveDate, result.RateDate);
     }
 
     [Fact]

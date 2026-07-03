@@ -12,15 +12,18 @@ public sealed class IssueCardService
     private readonly ICardRepository _cardRepository;
     private readonly ILedgerRepository _ledgerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly CurrencyValidator _currencyValidator;
 
     public IssueCardService(
         ICardRepository cardRepository,
         ILedgerRepository ledgerRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        CurrencyValidator currencyValidator)
     {
         _cardRepository = cardRepository;
         _ledgerRepository = ledgerRepository;
         _unitOfWork = unitOfWork;
+        _currencyValidator = currencyValidator;
     }
 
     public async Task<IssueCardResponse> IssueAsync(
@@ -32,9 +35,10 @@ public sealed class IssueCardService
             throw new ArgumentOutOfRangeException(nameof(request.CreditLimit), "Credit limit must be positive.");
         }
 
-        var currency = CurrencyCode.Create(request.Currency);
+        var currency = _currencyValidator.ValidateSupported(request.Currency);
         var issuedAt = DateTimeOffset.UtcNow;
-        var expiryDate = DateOnly.FromDateTime(issuedAt.UtcDateTime).AddYears(3);
+        var issueDate = DateOnly.FromDateTime(issuedAt.UtcDateTime);
+        var cardExpiry = CardExpiry.FromIssueDate(issueDate);
         var cvv = GenerateCvv();
         var pan = await GenerateUniquePanAsync(cancellationToken).ConfigureAwait(false);
 
@@ -42,7 +46,7 @@ public sealed class IssueCardService
         {
             Id = Guid.NewGuid(),
             Pan = pan,
-            ExpiryDate = expiryDate,
+            ExpiryDate = cardExpiry.EndOfMonthDate,
             CvvHash = CvvHasher.Hash(cvv),
             CreditLimit = request.CreditLimit,
             Currency = currency.Value,
@@ -62,7 +66,7 @@ public sealed class IssueCardService
         await _ledgerRepository.AddAsync(ledger, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        return new IssueCardResponse(pan, expiryDate, cvv, currency.Value, request.CreditLimit);
+        return new IssueCardResponse(pan, cardExpiry.MmYy, cvv, currency.Value, request.CreditLimit);
     }
 
     private async Task<string> GenerateUniquePanAsync(CancellationToken cancellationToken)

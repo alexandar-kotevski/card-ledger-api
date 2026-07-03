@@ -39,8 +39,8 @@ public sealed class CurrencyConversionService
         var rateDate = ConversionRateMetadata.ResolveRateDate(
             normalizedSource,
             normalizedTarget,
-            normalizedSource == "USD" ? null : sourceRate.RecordDate,
-            normalizedTarget == "USD" ? null : targetRate.RecordDate);
+            normalizedSource == "USD" ? null : sourceRate.EffectiveDate,
+            normalizedTarget == "USD" ? null : targetRate.EffectiveDate);
 
         return new ConversionResult(
             converted,
@@ -96,8 +96,8 @@ public sealed class CurrencyConversionService
         var rateDate = ConversionRateMetadata.ResolveRateDate(
             normalizedSource,
             normalizedTarget,
-            normalizedSource == "USD" ? null : sourceRate.RecordDate,
-            normalizedTarget == "USD" ? null : targetRate.RecordDate);
+            normalizedSource == "USD" ? null : sourceRate.EffectiveDate,
+            normalizedTarget == "USD" ? null : targetRate.EffectiveDate);
 
         return new ConversionResult(
             converted,
@@ -135,6 +135,7 @@ public sealed class CurrencyConversionService
                 CurrencyCode = "USD",
                 CountryCurrencyDesc = "United States-Dollar",
                 Rate = 1m,
+                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 RecordDate = DateOnly.FromDateTime(DateTime.UtcNow)
             };
         }
@@ -174,6 +175,7 @@ public sealed class CurrencyConversionService
                 CurrencyCode = "USD",
                 CountryCurrencyDesc = "United States-Dollar",
                 Rate = 1m,
+                EffectiveDate = transactionDate,
                 RecordDate = transactionDate
             };
         }

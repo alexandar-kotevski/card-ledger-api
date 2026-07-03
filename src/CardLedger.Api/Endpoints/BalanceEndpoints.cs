@@ -1,4 +1,5 @@
 using CardLedger.Api.Contracts;
+using CardLedger.Api.Validation;
 using CardLedger.Application.Services;
 using CardLedger.Domain.ValueObjects;
 
@@ -12,7 +13,8 @@ public static class BalanceEndpoints
             .WithName("GetAvailableBalance")
             .WithSummary("Get available balance")
             .WithDescription(
-                "Returns ledger-stored available balance converted to the target currency " +
+                "Returns ledger-stored available balance. When targetCurrency is omitted, " +
+                "returns the balance in the card's ledger currency. When provided, converts " +
                 "using the latest cached Treasury exchange rate.")
             .WithTags("Balance")
             .Produces<BalanceApiResponse>(StatusCodes.Status200OK)
@@ -24,7 +26,7 @@ public static class BalanceEndpoints
 
     private static async Task<IResult> GetBalanceAsync(
         string cardNumber,
-        string targetCurrency,
+        string? targetCurrency,
         BalanceService balanceService,
         CancellationToken cancellationToken)
     {
@@ -36,16 +38,19 @@ public static class BalanceEndpoints
             });
         }
 
-        try
+        if (!string.IsNullOrWhiteSpace(targetCurrency))
         {
-            _ = CurrencyCode.Create(targetCurrency);
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.ValidationProblem(new Dictionary<string, string[]>
+            try
             {
-                ["targetCurrency"] = [ex.Message]
-            });
+                _ = CurrencyCode.Create(targetCurrency);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["targetCurrency"] = [ApiValidationMessages.ForCurrency(targetCurrency, ex)]
+                });
+            }
         }
 
         var response = await balanceService
